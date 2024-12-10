@@ -1,0 +1,18 @@
+//
+//  BirthdaysApp.swift
+//  Birthdays
+//
+//  Created by Ollie Hunter on 08/12/2024.
+//
+
+import SwiftUI
+
+@main
+struct BirthdaysApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .accentColor(.blue) // Set global accent color
+        }
+    }
+}

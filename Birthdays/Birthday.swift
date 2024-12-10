@@ -1,0 +1,86 @@
+import Foundation
+
+/// Represents a Birthday entry with details about the person and their birth date
+struct Birthday: Identifiable, Codable {
+    let id: UUID
+    var name: String
+    var birthDate: Date
+    var giftIdeas: [Gift] // Stores gift ideas
+    
+    struct Gift: Identifiable, Codable {
+            let id: UUID
+            var name: String
+            var isPurchased: Bool
+        }
+
+        init(id: UUID = UUID(), name: String, birthDate: Date, giftIdeas: [Gift] = []) {
+            self.id = id
+            self.name = name
+            self.birthDate = birthDate
+            self.giftIdeas = giftIdeas
+        }
+
+        var isAnyGiftsPurchased: Bool {
+            giftIdeas.contains { $0.isPurchased }
+        }
+    var nextBirthday: Date {
+        let calendar = Calendar.current
+        let currentYear = calendar.component(.year, from: Date())
+        var nextBirthdayComponents = calendar.dateComponents([.month, .day], from: birthDate)
+        nextBirthdayComponents.year = currentYear
+
+        let nextBirthdayThisYear = calendar.date(from: nextBirthdayComponents)!
+        if nextBirthdayThisYear >= Date() {
+            return nextBirthdayThisYear
+        } else {
+            nextBirthdayComponents.year = currentYear + 1
+            return calendar.date(from: nextBirthdayComponents)!
+        }
+    }
+
+    var lastBirthday: Date {
+        let calendar = Calendar.current
+        let currentYear = calendar.component(.year, from: Date())
+        var lastBirthdayComponents = calendar.dateComponents([.month, .day], from: birthDate)
+        lastBirthdayComponents.year = currentYear
+
+        let lastBirthdayThisYear = calendar.date(from: lastBirthdayComponents)!
+        if lastBirthdayThisYear < Date() {
+            return lastBirthdayThisYear
+        } else {
+            lastBirthdayComponents.year = currentYear - 1
+            return calendar.date(from: lastBirthdayComponents)!
+        }
+    }
+
+    var ageAtNextBirthday: Int {
+        let calendar = Calendar.current
+        let birthYear = calendar.component(.year, from: birthDate)
+        let nextBirthdayYear = calendar.component(.year, from: nextBirthday)
+        return nextBirthdayYear - birthYear
+    }
+
+    var ageAtLastBirthday: Int {
+        let calendar = Calendar.current
+        let birthYear = calendar.component(.year, from: birthDate)
+        let lastBirthdayYear = calendar.component(.year, from: lastBirthday)
+        return lastBirthdayYear - birthYear
+    }
+
+    var nextBirthdayFormatted: String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter.string(from: nextBirthday)
+    }
+
+    var lastBirthdayFormatted: String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter.string(from: lastBirthday)
+    }
+
+    var daysUntilNextBirthday: Int {
+        let calendar = Calendar.current
+        return calendar.dateComponents([.day], from: Date(), to: nextBirthday).day ?? 0
+    }
+}
