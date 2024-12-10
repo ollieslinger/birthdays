@@ -51,6 +51,7 @@ struct ContentView: View {
                 .font(.custom("Bicyclette-Bold", size: 36))
                 .foregroundColor(.black)
             Spacer()
+            presentListButton
             settingsButton
         }
         .padding(.horizontal)
@@ -206,7 +207,26 @@ struct ContentView: View {
         }
     }
 
+    // MARK: - Present List
+    @State private var isShowingPresentList = false // State for the present list
+
+    private var presentListButton: some View {
+        Button(action: {
+            isShowingPresentList = true
+        }) {
+            Image(systemName: "gift.fill")
+                .foregroundColor(.orange)
+                .font(.title2)
+        }
+        .sheet(isPresented: $isShowingPresentList) {
+            PresentListView(birthdays: $birthdays)
+        }
+    }
     // MARK: - Methods
+    private var aggregatedGifts: [Birthday.Gift] {
+        birthdays.flatMap { $0.giftIdeas }
+    }
+    
     private func saveBirthdays() {
         if let encoded = try? JSONEncoder().encode(birthdays) {
             UserDefaults.standard.set(encoded, forKey: "birthdays")
