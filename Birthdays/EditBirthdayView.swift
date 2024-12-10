@@ -21,17 +21,72 @@ struct EditBirthdayView: View {
 
     var body: some View {
         NavigationView {
-            Form {
-                Section(header: Text("Birthday Details")) {
-                    TextField("Name", text: $name)
-                    DatePicker("Date of Birth", selection: $birthDate, displayedComponents: .date)
-                }
+            VStack(alignment: .leading, spacing: 20) {
+                // Header
+                Text("🎉 Edit Birthday")
+                    .font(.custom("Bicyclette-Bold", size: 24))
+                    .foregroundColor(.black)
+                    .padding(.horizontal)
+                    .padding(.top)
 
-                Section(header: giftIdeasHeader) {
+                Divider()
+                    .background(Color.gray)
+
+                // Name and Date Section
+                VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Name")
+                            .font(.custom("Bicyclette-Bold", size: 18))
+                            .foregroundColor(.black)
+
+                        TextField("Enter name", text: $name)
+                            .padding()
+                            .background(Color.white.opacity(0.9))
+                            .cornerRadius(10)
+                            .shadow(radius: 2)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.orange, lineWidth: 1)
+                            )
+                    }
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Date of Birth")
+                            .font(.custom("Bicyclette-Bold", size: 18))
+                            .foregroundColor(.black)
+
+                        DatePicker("Select date", selection: $birthDate, displayedComponents: .date)
+                            .labelsHidden()
+                            .padding()
+                            .background(Color.white.opacity(0.9))
+                            .cornerRadius(10)
+                            .shadow(radius: 2)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.orange, lineWidth: 1)
+                            )
+                    }
+                }
+                .padding(.horizontal)
+
+                Divider()
+                    .background(Color.gray)
+
+                // Gift Ideas Section
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Gift Ideas (\(giftIdeas.count))")
+                        .font(.custom("Bicyclette-Bold", size: 18))
+                        .foregroundColor(.black)
+
+                    Text("Swipe right to mark as purchased. Swipe left to delete.")
+                        .font(.custom("Bicyclette-Regular", size: 14))
+                        .foregroundColor(.gray)
+
                     List {
                         ForEach(giftIdeas) { gift in
                             HStack {
                                 Text(gift.name)
+                                    .font(.custom("Bicyclette-Regular", size: 16))
                                 Spacer()
                                 if gift.isPurchased {
                                     Image(systemName: "checkmark.circle.fill")
@@ -49,34 +104,57 @@ struct EditBirthdayView: View {
                                 Button {
                                     markGiftAsPurchased(gift)
                                 } label: {
-                                    Label("Mark as Purchased", systemImage: "checkmark")
+                                    Label("Purchased", systemImage: "checkmark")
                                 }
                                 .tint(.green)
                             }
                         }
                     }
+                    .listStyle(PlainListStyle())
+                    .frame(maxHeight: 200) // Limit the height of the gift ideas list
 
                     HStack {
-                        TextField("Add gift idea", text: $newGiftIdea)
+                        TextField("Add gift idea", text: $newGiftIdea, onCommit: addGiftIdea) // Commit on pressing Return
+                            .padding()
+                            .background(Color.white.opacity(0.9))
+                            .cornerRadius(10)
+                            .shadow(radius: 2)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.orange, lineWidth: 1)
+                            )
                         Button(action: addGiftIdea) {
-                            Image(systemName: "plus")
-                                .foregroundColor(.blue)
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title2)
+                                .foregroundColor(.orange)
                         }
                     }
                 }
-            }
-            .navigationTitle("Edit Birthday")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { editBirthday = nil }
+                .padding(.horizontal)
+
+                Spacer()
+
+                // Save Button
+                Button(action: saveAndDismiss) {
+                    HStack {
+                        Spacer()
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(.white)
+                        Text("Save Changes")
+                            .font(.custom("Bicyclette-Bold", size: 18))
+                            .foregroundColor(.white)
+                        Spacer()
+                    }
+                    .padding()
+                    .background(Color.orange)
+                    .cornerRadius(12)
+                    .padding(.horizontal)
                 }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") { saveAndDismiss() }
-                }
             }
+            .background(Color.white)
         }
     }
-
     // MARK: - Views
     private var giftIdeasHeader: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -94,20 +172,44 @@ struct EditBirthdayView: View {
     // MARK: - Actions
     private func addGiftIdea() {
         guard !newGiftIdea.isEmpty else { return }
-        giftIdeas.append(Birthday.Gift(id: UUID(), name: newGiftIdea, isPurchased: false))
+        let newGift = Birthday.Gift(id: UUID(), name: newGiftIdea, isPurchased: false)
+        giftIdeas.append(newGift)
+
+        // Update the birthday in the main list
+        if let index = birthdays.firstIndex(where: { $0.id == birthdayToEdit.id }) {
+            birthdays[index].giftIdeas = giftIdeas
+        }
+
         newGiftIdea = ""
-    }
+        saveBirthdays(birthdays) // Call the global save function
 
+    }
+    
     private func deleteGift(_ gift: Birthday.Gift) {
+        // Remove the gift locally
         giftIdeas.removeAll { $0.id == gift.id }
-    }
 
+        // Update the global birthdays list
+        if let index = birthdays.firstIndex(where: { $0.id == birthdayToEdit.id }) {
+            birthdays[index].giftIdeas = giftIdeas
+        }
+        saveBirthdays(birthdays) // Call the global save function
+
+        }
+    
     private func markGiftAsPurchased(_ gift: Birthday.Gift) {
+        // Toggle the purchased state locally
         if let index = giftIdeas.firstIndex(where: { $0.id == gift.id }) {
             giftIdeas[index].isPurchased.toggle()
         }
-    }
 
+        // Update the global birthdays list
+        if let index = birthdays.firstIndex(where: { $0.id == birthdayToEdit.id }) {
+            birthdays[index].giftIdeas = giftIdeas
+        }
+        saveBirthdays(birthdays) // Call the global save function
+
+     }
     private func saveAndDismiss() {
         if let index = birthdays.firstIndex(where: { $0.id == birthdayToEdit.id }) {
             birthdays[index].name = name

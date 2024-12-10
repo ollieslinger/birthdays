@@ -48,14 +48,10 @@ class CSVImportDelegate: NSObject, UIDocumentPickerDelegate {
 
         DispatchQueue.main.async {
             self.birthdays.append(contentsOf: importedBirthdays)
-            self.saveBirthdays()
+            saveBirthdays(self.birthdays) // Call the global save function
+
             print("Successfully imported \(importedBirthdays.count) birthdays.")
         }
     }
 
-    private func saveBirthdays() {
-        if let encoded = try? JSONEncoder().encode(birthdays) {
-            UserDefaults.standard.set(encoded, forKey: "birthdays")
-        }
-    }
 }

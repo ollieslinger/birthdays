@@ -12,17 +12,32 @@ struct PresentListView: View {
 
     var body: some View {
         NavigationView {
-            VStack {
+            VStack(alignment: .leading, spacing: 20) {
+                // Header
+                Text("🎁 Gift Ideas")
+                    .font(.custom("Bicyclette-Bold", size: 24))
+                    .foregroundColor(.black)
+                    .padding(.horizontal)
+                    .padding(.top)
+
+                Divider()
+                    .background(Color.gray)
+
+                // Content Section
                 if giftsWithRecipients.isEmpty {
-                    Text("No gifts added yet!")
-                        .font(.custom("Bicyclette-Bold", size: 18))
-                        .foregroundColor(.gray)
-                        .padding()
+                    VStack(alignment: .center) {
+                        Text("No presents added yet!")
+                            .font(.custom("Bicyclette-Bold", size: 18))
+                            .foregroundColor(.gray)
+                            .padding()
+                        Spacer() // Ensures the text stays at the top
+                    }
+                    .frame(maxWidth: .infinity, alignment: .top)
                 } else {
                     List {
                         ForEach(giftsWithRecipients, id: \.gift.id) { item in
                             HStack {
-                                VStack(alignment: .leading) {
+                                VStack(alignment: .leading, spacing: 4) {
                                     Text(item.gift.name)
                                         .font(.custom("Bicyclette-Bold", size: 18))
                                     Text("For: \(item.recipient.name)")
@@ -43,31 +58,41 @@ struct PresentListView: View {
                                         .foregroundColor(.red)
                                 }
                             }
+                            .padding()
+                            .background(Color.white.opacity(0.9))
+                            
                         }
                     }
                     .listStyle(PlainListStyle())
+                    .padding(.horizontal, -16) // Adjust to fit edge-to-edge
                 }
+
+                Spacer()
 
                 // Add Gift Button
                 Button(action: { isAddingGift = true }) {
-                    Text("Add Gift")
-                        .font(.custom("Bicyclette-Bold", size: 18))
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.orange)
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
-                        .padding(.horizontal)
-                }
-            }
-            .navigationTitle("🎁 Gift Ideas")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") {
-                        // Dismiss the view
+                    HStack {
+                        Spacer()
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(.orange)
+                        Text("Add Gift")
+                            .font(.custom("Bicyclette-Bold", size: 18))
+                            .foregroundColor(.orange)
+                        Spacer()
                     }
+                    .padding()
+                    .background(Color.white.opacity(0.9))
+                    .cornerRadius(10)
+                    .shadow(radius: 2)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.orange, lineWidth: 1)
+                    )
                 }
+                .padding(.horizontal)
             }
+            .background(Color.white)
             .sheet(isPresented: $isAddingGift) {
                 AddGiftView(birthdays: $birthdays)
             }

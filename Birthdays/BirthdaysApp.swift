@@ -11,7 +11,8 @@ import SwiftUI
 struct BirthdaysApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SplashScreenView()
+                .preferredColorScheme(.light) // Enforces light mode across the app
                 .accentColor(.blue) // Set global accent color
         }
     }

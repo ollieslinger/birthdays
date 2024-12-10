@@ -19,25 +19,29 @@ struct NotificationHelper {
     }
 }
 
-func scheduleNotification(for birthday: Birthday) {
+func scheduleNotification(for birthday: Birthday, at time: Date) {
     let notificationTimes: [(title: String, daysBefore: Int)] = [
         ("Upcoming Birthday in 7 Days!", 7),
         ("Upcoming Birthday Tomorrow!", 1),
         ("Happy Birthday Today!", 0)
     ]
-    
+
     for notification in notificationTimes {
         let content = UNMutableNotificationContent()
         content.title = notification.title
         content.body = "\(birthday.name) turns \(birthday.ageAtNextBirthday) on \(birthday.nextBirthdayFormatted)."
         content.sound = .default
 
-        // Calculate the trigger date
+        // Combine the notification time with the calculated trigger date
         let triggerDate = Calendar.current.date(byAdding: .day, value: -notification.daysBefore, to: birthday.nextBirthday) ?? birthday.nextBirthday
-        let triggerComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: triggerDate)
+        let triggerTimeComponents = Calendar.current.dateComponents([.hour, .minute], from: time)
+        var triggerComponents = Calendar.current.dateComponents([.year, .month, .day], from: triggerDate)
+        triggerComponents.hour = triggerTimeComponents.hour
+        triggerComponents.minute = triggerTimeComponents.minute
+
         let trigger = UNCalendarNotificationTrigger(dateMatching: triggerComponents, repeats: false)
 
-        // Use a unique identifier for each notification (e.g., ID + daysBefore)
+        // Unique identifier for each notification
         let request = UNNotificationRequest(identifier: "\(birthday.id.uuidString)-\(notification.daysBefore)", content: content, trigger: trigger)
 
         // Add the notification request

@@ -51,6 +51,7 @@ struct ContentView: View {
                 .font(.custom("Bicyclette-Bold", size: 36))
                 .foregroundColor(.black)
             Spacer()
+            notificationsButton
             presentListButton
             settingsButton
         }
@@ -223,15 +224,25 @@ struct ContentView: View {
         }
     }
     // MARK: - Methods
+    @State private var isShowingNotificationsList = false // State for the notifications list
+
+    private var notificationsButton: some View {
+        Button(action: {
+            isShowingNotificationsList = true
+        }) {
+            Image(systemName: "bell")
+                .foregroundColor(.orange)
+                .font(.title2)
+        }
+        .sheet(isPresented: $isShowingNotificationsList) {
+            NotificationsListView()
+        }
+    }
+    
     private var aggregatedGifts: [Birthday.Gift] {
         birthdays.flatMap { $0.giftIdeas }
     }
     
-    private func saveBirthdays() {
-        if let encoded = try? JSONEncoder().encode(birthdays) {
-            UserDefaults.standard.set(encoded, forKey: "birthdays")
-        }
-    }
 
     private func loadBirthdays() {
         if let savedData = UserDefaults.standard.data(forKey: "birthdays"),
@@ -242,11 +253,34 @@ struct ContentView: View {
 
     private func deleteBirthday(at offsets: IndexSet) {
         withAnimation {
-            birthdays.remove(atOffsets: offsets)
-            saveBirthdays()
+            // Map offsets from filteredAndSearchedBirthdays to the original birthdays array
+            let originalIndices = offsets.map { index in
+                let birthdayToDelete = filteredAndSearchedBirthdays[index]
+                return birthdays.firstIndex { $0.id == birthdayToDelete.id }!
+            }
+            
+            // Remove notifications and items from the original birthdays array
+            originalIndices.forEach { index in
+                let birthday = birthdays[index]
+                // Remove notifications associated with the birthday
+                removeNotifications(for: birthday)
+                // Remove the birthday from the array
+                birthdays.remove(at: index)
+            }
+            
+            // Save the updated birthdays list
+            saveBirthdays(birthdays) // Call the global save function
         }
     }
 
+    private func removeNotifications(for birthday: Birthday) {
+        let notificationIdentifiers = [
+            "\(birthday.id.uuidString)-7",  // Notification 7 days before
+            "\(birthday.id.uuidString)-1",  // Notification 1 day before
+            "\(birthday.id.uuidString)-0"   // Notification on the day
+        ]
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: notificationIdentifiers)
+    }
     // MARK: - Helper Properties
     var filteredAndSearchedBirthdays: [Birthday] {
         let filteredBirthdays: [Birthday]

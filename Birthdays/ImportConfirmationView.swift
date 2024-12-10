@@ -4,6 +4,7 @@ import Foundation
 struct ImportConfirmationView: View {
     @Binding var parsedBirthdays: [Birthday]
     @State private var selectedBirthdays: Set<UUID> = []
+    @Environment(\.presentationMode) var presentationMode // For dismissing the view
 
     var onConfirm: ([Birthday]) -> Void
     var onCancel: () -> Void
@@ -52,6 +53,7 @@ struct ImportConfirmationView: View {
                     Button(action: {
                         print("Cancel pressed.") // Debugging
                         onCancel()
+                        presentationMode.wrappedValue.dismiss() // Dismiss the view
                     }) {
                         Text("Cancel")
                             .font(.custom("Bicyclette-Bold", size: 18))
@@ -63,10 +65,7 @@ struct ImportConfirmationView: View {
                     }
 
                     Button(action: {
-                        print("Confirm pressed.") // Debugging
-                        let selected = parsedBirthdays.filter { selectedBirthdays.contains($0.id) }
-                        print("Selected Birthdays: \(selected)") // Debugging
-                        onConfirm(selected)
+                        confirmSelection()
                     }) {
                         Text("Confirm")
                             .font(.custom("Bicyclette-Bold", size: 18))
@@ -83,5 +82,20 @@ struct ImportConfirmationView: View {
                 print("Parsed Birthdays: \(parsedBirthdays)") // Debugging
             }
         }
+    }
+
+    private func confirmSelection() {
+        // Filter the selected birthdays
+        let selected = parsedBirthdays.filter { selectedBirthdays.contains($0.id) }
+        
+        // Schedule notifications using the helper
+        let notificationTime = UserDefaults.standard.object(forKey: "notificationTime") as? Date ?? Date() // Default to current time
+        for birthday in selected {
+            scheduleNotification(for: birthday, at: notificationTime)
+        }
+
+        // Pass selected birthdays back and dismiss
+        onConfirm(selected)
+        presentationMode.wrappedValue.dismiss() // Dismiss the view
     }
 }

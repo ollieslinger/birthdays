@@ -90,7 +90,7 @@ struct DocumentPicker: UIViewControllerRepresentable {
                     parsedBirthdays: $parsedBirthdays,
                     onConfirm: { selectedBirthdays in
                         birthdays.append(contentsOf: selectedBirthdays)
-                        saveBirthdays()
+                        saveBirthdays(birthdays) // Call the global save function
                         dismissAll()
                     },
                     onCancel: {
@@ -107,9 +107,5 @@ struct DocumentPicker: UIViewControllerRepresentable {
         }
     }
 
-    private func saveBirthdays() {
-        if let encoded = try? JSONEncoder().encode(birthdays) {
-            UserDefaults.standard.set(encoded, forKey: "birthdays")
-        }
-    }
+
 }
