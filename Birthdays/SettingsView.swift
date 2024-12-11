@@ -31,113 +31,14 @@ struct SettingsView: View {
 
                 // Buttons Section
                 VStack(alignment: .leading, spacing: 16) {
-                    // Notification Time Button
-                    VStack(alignment: .leading, spacing: 8) {
-                        Button(action: { isShowingTimePicker.toggle() }) {
-                            HStack {
-                                Image(systemName: "clock.fill")
-                                    .font(.title2)
-                                    .foregroundColor(.orange)
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Notification Time")
-                                        .font(.custom("Bicyclette-Bold", size: 18))
-                                        .foregroundColor(.black)
-                                    Text("Set the time when notifications are sent.")
-                                        .font(.custom("Bicyclette-Regular", size: 14))
-                                        .foregroundColor(.gray)
-                                }
-                                Spacer()
-                                Image(systemName: isShowingTimePicker ? "chevron.up" : "chevron.down")
-                                    .foregroundColor(.gray)
-                            }
-                            .padding()
-                            .background(Color.white.opacity(0.9))
-                            .cornerRadius(10)
-                            .shadow(radius: 2)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.orange, lineWidth: 1)
-                            )
-                        }
+                    // Notification Time Concertina
+                    notificationTimeSection
 
-                        if isShowingTimePicker {
-                            VStack(spacing: 16) {
-                                DatePicker(
-                                    "",
-                                    selection: $notificationTime,
-                                    displayedComponents: .hourAndMinute
-                                )
-                                .datePickerStyle(WheelDatePickerStyle())
-                                .labelsHidden()
-                                .padding(.horizontal)
-
-                                Button("Confirm Time") {
-                                    confirmNotificationTime()
-                                    withAnimation {
-                                        isShowingTimePicker = false // Collapse the section
-                                    }
-                                }
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(Color.orange)
-                                .foregroundColor(.white)
-                                .cornerRadius(12)
-                                .padding(.horizontal)
-                            }
-                            .transition(.move(edge: .top))
-                        }
-                    }
                     // Export Button
-                    Button(action: exportToCSV) {
-                        HStack {
-                            Image(systemName: "square.and.arrow.up")
-                                .font(.title2)
-                                .foregroundColor(.orange)
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("Export Birthdays")
-                                    .font(.custom("Bicyclette-Bold", size: 18))
-                                    .foregroundColor(.black)
-                                Text("Download your birthdays as a CSV file.")
-                                    .font(.custom("Bicyclette-Regular", size: 14))
-                                    .foregroundColor(.gray)
-                            }
-                            Spacer()
-                        }
-                        .padding()
-                        .background(Color.white.opacity(0.9))
-                        .cornerRadius(10)
-                        .shadow(radius: 2)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.orange, lineWidth: 1)
-                        )
-                    }
+                    exportButton
 
                     // Import Button
-                    Button(action: { showDocumentPicker = true }) {
-                        HStack {
-                            Image(systemName: "square.and.arrow.down")
-                                .font(.title2)
-                                .foregroundColor(.orange)
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("Import Birthdays")
-                                    .font(.custom("Bicyclette-Bold", size: 18))
-                                    .foregroundColor(.black)
-                                Text("Load birthdays from a CSV file.")
-                                    .font(.custom("Bicyclette-Regular", size: 14))
-                                    .foregroundColor(.gray)
-                            }
-                            Spacer()
-                        }
-                        .padding()
-                        .background(Color.white.opacity(0.9))
-                        .cornerRadius(10)
-                        .shadow(radius: 2)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.orange, lineWidth: 1)
-                        )
-                    }
+                    importButton
                 }
                 .padding(.horizontal)
 
@@ -162,7 +63,125 @@ struct SettingsView: View {
             .navigationBarHidden(true)
         }
     }
+    // MARK: - Notification Time Section
+    private var notificationTimeSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Button(action: { withAnimation { isShowingTimePicker.toggle() } }) {
+                HStack {
+                    Image(systemName: "clock.fill")
+                        .font(.title2)
+                        .foregroundColor(.orange)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Notification Time")
+                            .font(.custom("Bicyclette-Bold", size: 18))
+                            .foregroundColor(.black)
+                        Text("Set the time when notifications are sent.")
+                            .font(.custom("Bicyclette-Regular", size: 14))
+                            .foregroundColor(.gray)
+                    }
+                    Spacer()
+                    Image(systemName: isShowingTimePicker ? "chevron.up" : "chevron.down")
+                        .foregroundColor(.gray)
+                }
+                .padding()
+                .background(Color.white.opacity(0.9))
+                .cornerRadius(10)
+                .shadow(radius: 2)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.orange, lineWidth: 1)
+                )
+            }
 
+            // Ensure DatePicker is below the button without overlap
+            if isShowingTimePicker {
+                VStack(spacing: 16) {
+                    DatePicker(
+                        "",
+                        selection: $notificationTime,
+                        displayedComponents: .hourAndMinute
+                    )
+                    .datePickerStyle(WheelDatePickerStyle())
+                    .labelsHidden()
+                    .padding(.horizontal)
+
+                    Button("Confirm Time") {
+                        confirmNotificationTime()
+                        withAnimation {
+                            isShowingTimePicker = false // Collapse the section
+                        }
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.orange)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+                    .padding(.horizontal)
+                }
+                .padding(.top, 8) // Add spacing between the button and the picker
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+        .zIndex(1) // Ensure proper stacking to avoid layout conflicts
+    }
+
+    // MARK: - Export Button
+    private var exportButton: some View {
+        Button(action: exportToCSV) {
+            HStack {
+                Image(systemName: "square.and.arrow.up")
+                    .font(.title2)
+                    .foregroundColor(.orange)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Export Birthdays")
+                        .font(.custom("Bicyclette-Bold", size: 18))
+                        .foregroundColor(.black)
+                    Text("Download your birthdays as a CSV file.")
+                        .font(.custom("Bicyclette-Regular", size: 14))
+                        .foregroundColor(.gray)
+                }
+                Spacer()
+            }
+            .padding()
+            .background(Color.white.opacity(0.9))
+            .cornerRadius(10)
+            .shadow(radius: 2)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.orange, lineWidth: 1)
+            )
+        }
+    }
+
+    // MARK: - Import Button
+    private var importButton: some View {
+        Button(action: { showDocumentPicker = true }) {
+            HStack {
+                Image(systemName: "square.and.arrow.down")
+                    .font(.title2)
+                    .foregroundColor(.orange)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Import Birthdays")
+                        .font(.custom("Bicyclette-Bold", size: 18))
+                        .foregroundColor(.black)
+                    Text("Load birthdays from a CSV file.")
+                        .font(.custom("Bicyclette-Regular", size: 14))
+                        .foregroundColor(.gray)
+                }
+                Spacer()
+            }
+            .padding()
+            .background(Color.white.opacity(0.9))
+            .cornerRadius(10)
+            .shadow(radius: 2)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.orange, lineWidth: 1)
+            )
+        }
+    }
+    
+    
     private func saveNotificationTime() {
         UserDefaults.standard.set(notificationTime, forKey: "notificationTime")
     }

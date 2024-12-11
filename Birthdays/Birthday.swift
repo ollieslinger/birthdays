@@ -8,30 +8,30 @@ struct Birthday: Identifiable, Codable {
     var giftIdeas: [Gift] // Stores gift ideas
     
     struct Gift: Identifiable, Codable {
-            let id: UUID
-            var name: String
-            var isPurchased: Bool
-        }
-
-        init(id: UUID = UUID(), name: String, birthDate: Date, giftIdeas: [Gift] = []) {
-            self.id = id
-            self.name = name
-            self.birthDate = birthDate
-            self.giftIdeas = giftIdeas
-        }
-
-        var isAnyGiftsPurchased: Bool {
-            giftIdeas.contains { $0.isPurchased }
-        }
+        let id: UUID
+        var name: String
+        var isPurchased: Bool
+    }
+    
+    init(id: UUID = UUID(), name: String, birthDate: Date, giftIdeas: [Gift] = []) {
+        self.id = id
+        self.name = name
+        self.birthDate = birthDate
+        self.giftIdeas = giftIdeas
+    }
+    
+    var isAnyGiftsPurchased: Bool {
+        giftIdeas.contains { $0.isPurchased }
+    }
     var nextBirthday: Date {
         let calendar = Calendar.current
         let currentYear = calendar.component(.year, from: Date())
         var nextBirthdayComponents = calendar.dateComponents([.month, .day], from: birthDate)
         nextBirthdayComponents.year = currentYear
-
+        
         let today = calendar.startOfDay(for: Date())
         let nextBirthdayThisYear = calendar.date(from: nextBirthdayComponents)!
-
+        
         if nextBirthdayThisYear >= today {
             // If birthday is today or in the future
             return nextBirthdayThisYear
@@ -41,16 +41,16 @@ struct Birthday: Identifiable, Codable {
             return calendar.date(from: nextBirthdayComponents)!
         }
     }
-
+    
     var lastBirthday: Date {
         let calendar = Calendar.current
         let currentYear = calendar.component(.year, from: Date())
         var lastBirthdayComponents = calendar.dateComponents([.month, .day], from: birthDate)
         lastBirthdayComponents.year = currentYear
-
+        
         let today = calendar.startOfDay(for: Date())
         let lastBirthdayThisYear = calendar.date(from: lastBirthdayComponents)!
-
+        
         if lastBirthdayThisYear < today {
             // If birthday already occurred this year
             return lastBirthdayThisYear
@@ -66,28 +66,31 @@ struct Birthday: Identifiable, Codable {
         let nextBirthdayYear = calendar.component(.year, from: nextBirthday)
         return nextBirthdayYear - birthYear
     }
-
+    
     var ageAtLastBirthday: Int {
         let calendar = Calendar.current
         let birthYear = calendar.component(.year, from: birthDate)
         let lastBirthdayYear = calendar.component(.year, from: lastBirthday)
         return lastBirthdayYear - birthYear
     }
-
+    
     var nextBirthdayFormatted: String {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         return formatter.string(from: nextBirthday)
     }
-
+    
     var lastBirthdayFormatted: String {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         return formatter.string(from: lastBirthday)
     }
-
+    
     var daysUntilNextBirthday: Int {
         let calendar = Calendar.current
-        return calendar.dateComponents([.day], from: Date(), to: nextBirthday).day ?? 0
+        let startOfToday = calendar.startOfDay(for: Date())
+        let startOfNextBirthday = calendar.startOfDay(for: nextBirthday)
+        let components = calendar.dateComponents([.day], from: startOfToday, to: startOfNextBirthday)
+        return (components.day ?? 0) // Add 1 to include the starting day
     }
 }
