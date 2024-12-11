@@ -1,11 +1,8 @@
 import Foundation
 import UserNotifications
 
-
-
 struct NotificationHelper {
-    
-    ///// Requests notification permissions from the user
+    /// Requests notification permissions from the user
     static func requestPermissions() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
             if let error = error {
@@ -23,60 +20,95 @@ struct NotificationHelper {
         }
     }
     
-    /// Checks and sends notifications for upcoming birthdays
-    static func checkAndSendNotifications(for birthdays: [Birthday]) {
+    /// Schedules notifications for upcoming birthdays (today + 1, tomorrow + 1, and 7 days + 1).
+    static func scheduleUpcomingNotifications(for birthdays: [Birthday]) {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
-        let sevenDaysLater = calendar.date(byAdding: .day, value: 7, to: today)!
         let tomorrow = calendar.date(byAdding: .day, value: 1, to: today)!
+        let dayAfterTomorrow = calendar.date(byAdding: .day, value: 2, to: today)!
+        let eightDaysLater = calendar.date(byAdding: .day, value: 8, to: today)!
+
+        print("Checking for birthdays to schedule notifications...")
+
+        // Retrieve user-defined notification time
+        guard let notificationTime = UserDefaults.standard.object(forKey: "notificationTime") as? Date else {
+            print("Notification time not set. Using default time: 9:00 AM.")
+            return
+        }
         
-        print("Checking notifications for \(birthdays.count) birthdays.")
+        var notificationsScheduled = 0
         
         for birthday in birthdays {
-            if calendar.isDate(birthday.nextBirthday, inSameDayAs: today) {
-                print("Notification should fire: Happy Birthday Today! for \(birthday.name).")
-                scheduleNotification(
-                    title: "🎉 Happy Birthday Today!",
-                    message: "\(birthday.name) turns \(birthday.ageAtNextBirthday) today!",
-                    for: birthday
-                )
-            } else if calendar.isDate(birthday.nextBirthday, inSameDayAs: sevenDaysLater) {
-                print("Notification should fire: Birthday in 7 Days! for \(birthday.name).")
-                scheduleNotification(
-                    title: "🎉 Upcoming Birthday!",
-                    message: "\(birthday.name) turns \(birthday.ageAtNextBirthday) in 7 days!",
-                    for: birthday
-                )
-            } else if calendar.isDate(birthday.nextBirthday, inSameDayAs: tomorrow) {
-                print("Notification should fire: Birthday Tomorrow! for \(birthday.name).")
-                scheduleNotification(
-                    title: "🎉 Upcoming Birthday Tomorrow!",
-                    message: "\(birthday.name) turns \(birthday.ageAtNextBirthday) tomorrow!",
-                    for: birthday
-                )
+            if calendar.isDate(birthday.nextBirthday, inSameDayAs: dayAfterTomorrow) {
+                // Combine tomorrow's date with user-defined notification time
+                if let scheduledTime = combineDateAndTime(date: tomorrow, time: notificationTime) {
+                    print("Notification scheduled: Birthday Tomorrow! for \(birthday.name).")
+                    queueNotification(
+                        title: "🎉 Birthday Tomorrow!",
+                        message: "\(birthday.name) turns \(birthday.ageAtNextBirthday) tomorrow!",
+                        for: birthday,
+                        triggerDate: scheduledTime
+                    )
+                    notificationsScheduled += 1
+                }
+            } else if calendar.isDate(birthday.nextBirthday, inSameDayAs: eightDaysLater) {
+                // Combine tomorrow's date with user-defined notification time
+                if let scheduledTime = combineDateAndTime(date: tomorrow, time: notificationTime) {
+                    print("Notification scheduled: Birthday in 7 Days! for \(birthday.name).")
+                    queueNotification(
+                        title: "🎉 Birthday in 7 Days!",
+                        message: "\(birthday.name) turns \(birthday.ageAtNextBirthday) in 7 days!",
+                        for: birthday,
+                        triggerDate: scheduledTime
+                    )
+                    notificationsScheduled += 1
+                }
             }
         }
+        
+        print("\(notificationsScheduled) notifications scheduled.")
     }
-    
-    /// Schedules a notification for a specific birthday
-    static func scheduleNotification(title: String, message: String, for birthday: Birthday) {
+
+    /// Combines a specific date and time into a single `Date` object
+    static func combineDateAndTime(date: Date, time: Date) -> Date? {
+        let calendar = Calendar.current
+        let dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
+        let timeComponents = calendar.dateComponents([.hour, .minute], from: time)
+        
+        var combinedComponents = DateComponents()
+        combinedComponents.year = dateComponents.year
+        combinedComponents.month = dateComponents.month
+        combinedComponents.day = dateComponents.day
+        combinedComponents.hour = timeComponents.hour
+        combinedComponents.minute = timeComponents.minute
+        
+        let combinedDate = calendar.date(from: combinedComponents)
+        print("Combined date and time: \(combinedDate?.description ?? "Invalid Date")")
+        return combinedDate
+    }
+
+    /// Queues a notification to fire at a specific date and time.
+    static func queueNotification(title: String, message: String, for birthday: Birthday, triggerDate: Date) {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = message
         content.sound = .default
-        
-        // Unique identifier for each notification
+
+        // Set up a notification trigger for the specified date and time
+        let triggerComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: triggerDate)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: triggerComponents, repeats: false)
+
+        // Unique identifier for the notification
         let identifier = "\(birthday.id.uuidString)-\(title)"
-        print("Scheduling notification: \(title) for \(birthday.name) with ID \(identifier).")
-        
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false) // Temporary trigger for testing
-        
+        print("Queuing notification: \(title) for \(birthday.name) at \(triggerDate).")
+
         let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+
         UNUserNotificationCenter.current().add(request) { error in
             if let error = error {
                 print("Failed to schedule notification: \(error)")
             } else {
-                print("Notification scheduled successfully for \(birthday.name).")
+                print("Notification queued successfully for \(birthday.name).")
             }
         }
     }

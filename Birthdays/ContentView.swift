@@ -52,6 +52,7 @@ struct ContentView: View {
                 .foregroundColor(.black)
             Spacer()
             presentListButton
+            notificationsButton
             settingsButton
         }
         .padding(.horizontal)
@@ -282,15 +283,21 @@ struct ContentView: View {
     }
     // MARK: - Helper Properties
     var filteredAndSearchedBirthdays: [Birthday] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+
         let filteredBirthdays: [Birthday]
         switch filterOption {
         case .upcoming:
-            filteredBirthdays = birthdays.filter { $0.nextBirthday >= Date() }
+            // Include today and future birthdays
+            filteredBirthdays = birthdays.filter { $0.nextBirthday >= today }
                 .sorted(by: { $0.nextBirthday < $1.nextBirthday })
         case .past:
-            filteredBirthdays = birthdays.filter { $0.lastBirthday < Date() }
+            // Include only birthdays strictly before today
+            filteredBirthdays = birthdays.filter { $0.lastBirthday < today }
                 .sorted(by: { $0.lastBirthday > $1.lastBirthday })
         }
+
         return searchText.isEmpty ? filteredBirthdays :
             filteredBirthdays.filter { $0.name.lowercased().contains(searchText.lowercased()) }
     }

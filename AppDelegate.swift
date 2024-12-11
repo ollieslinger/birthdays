@@ -71,9 +71,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         DispatchQueue.global().async {
             let birthdays = loadBirthdays() // Load birthdays from persistent storage
             print("Loaded \(birthdays.count) birthdays.")
-            
-            NotificationHelper.checkAndSendNotifications(for: birthdays)
-            print("Birthday check completed.")
+
+            // Perform birthday notification check for the upcoming days
+            NotificationHelper.scheduleUpcomingNotifications(for: birthdays)
+
+            print("Birthday notification check completed.")
             
             task.setTaskCompleted(success: true) // Mark the task as completed
         }

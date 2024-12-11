@@ -1,19 +1,18 @@
 import UserNotifications
+import SwiftUI
 
+// Fetch all scheduled notifications
 func fetchScheduledNotifications(completion: @escaping ([UNNotificationRequest]) -> Void) {
     UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
         completion(requests)
     }
 }
 
-import SwiftUI
-import UserNotifications
-
 struct NotificationsListView: View {
     @State private var notifications: [UNNotificationRequest] = []
 
     var body: some View {
-        VStack {
+        VStack(alignment: .leading, spacing: 20) {
             // Header
             HStack {
                 Text("🔔 Notifications")
@@ -25,6 +24,7 @@ struct NotificationsListView: View {
                 }
                 .font(.custom("Bicyclette-Bold", size: 16))
                 .foregroundColor(.red)
+                .disabled(notifications.isEmpty) // Disable button if no notifications
             }
             .padding(.horizontal)
             .padding(.top)
@@ -32,21 +32,28 @@ struct NotificationsListView: View {
             Divider()
                 .background(Color.gray)
 
+            // Content Section
             if notifications.isEmpty {
-                VStack(alignment: .center) {
+                VStack(alignment: .center, spacing: 16) {
+                    Image(systemName: "bell.slash")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 80, height: 80)
+                        .foregroundColor(.gray)
+                        .padding()
+
                     Text("No scheduled notifications!")
                         .font(.custom("Bicyclette-Bold", size: 18))
                         .foregroundColor(.gray)
                         .padding()
-                    Spacer() // Ensures the text stays at the top
                 }
-                .frame(maxWidth: .infinity, alignment: .top)
-            
+                .frame(maxWidth: .infinity) // Allow full width
+                .padding(.top, 40) // Add space from the top edge
             } else {
                 List {
                     ForEach(sortedNotifications, id: \.identifier) { notification in
                         HStack {
-                            VStack(alignment: .leading) {
+                            VStack(alignment: .leading, spacing: 8) {
                                 Text(notification.content.title)
                                     .font(.custom("Bicyclette-Bold", size: 18))
                                 Text(notification.content.body)
@@ -72,6 +79,8 @@ struct NotificationsListView: View {
                 }
                 .listStyle(PlainListStyle())
             }
+
+            Spacer() // Push content to the top
         }
         .onAppear(perform: loadNotifications)
         .background(Color.white)

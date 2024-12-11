@@ -33,6 +33,7 @@ struct PresentListView: View {
                         Spacer() // Ensures the text stays at the top
                     }
                     .frame(maxWidth: .infinity, alignment: .top)
+                    .padding(.top, 40)
                 } else {
                     List {
                         ForEach(giftsWithRecipients, id: \.gift.id) { item in

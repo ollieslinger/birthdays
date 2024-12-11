@@ -3,11 +3,11 @@ import SwiftUI
 struct AddBirthdayView: View {
     @Binding var isAddingBirthday: Bool
     @Binding var birthdays: [Birthday]
-
+    
     @State private var name: String = ""
     @State private var birthDate: Date = Date()
     @State private var showAlert = false
-
+    
     var body: some View {
         NavigationView {
             VStack(alignment: .leading, spacing: 20) {
@@ -17,10 +17,10 @@ struct AddBirthdayView: View {
                     .foregroundColor(.black)
                     .padding(.horizontal)
                     .padding(.top)
-
+                
                 Divider()
                     .background(Color.gray)
-
+                
                 // Input Fields
                 VStack(alignment: .leading, spacing: 16) {
                     // Name Input
@@ -28,7 +28,7 @@ struct AddBirthdayView: View {
                         Text("Name")
                             .font(.custom("Bicyclette-Bold", size: 18))
                             .foregroundColor(.black)
-
+                        
                         TextField("Enter name", text: $name)
                             .padding()
                             .background(Color.white.opacity(0.9))
@@ -39,13 +39,13 @@ struct AddBirthdayView: View {
                                     .stroke(Color.orange, lineWidth: 1)
                             )
                     }
-
+                    
                     // Date Picker
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Date of Birth")
                             .font(.custom("Bicyclette-Bold", size: 18))
                             .foregroundColor(.black)
-
+                        
                         DatePicker("Select date", selection: $birthDate, displayedComponents: .date)
                             .labelsHidden()
                             .padding()
@@ -59,9 +59,9 @@ struct AddBirthdayView: View {
                     }
                 }
                 .padding(.horizontal)
-
+                
                 Spacer()
-
+                
                 // Save Button
                 Button(action: {
                     if name.isEmpty {
@@ -93,7 +93,7 @@ struct AddBirthdayView: View {
             }
         }
     }
-
+    
     private func addBirthday() {
         let newBirthday = Birthday(id: UUID(), name: name, birthDate: birthDate, giftIdeas: [])
         birthdays.append(newBirthday) // Add to the list
@@ -101,11 +101,5 @@ struct AddBirthdayView: View {
         
         isAddingBirthday = false // Close the modal
     }
-
-    private func defaultNotificationTime() -> Date {
-        var components = DateComponents()
-        components.hour = 9 // Default to 9:00 AM
-        components.minute = 0
-        return Calendar.current.date(from: components) ?? Date()
-    }
+    
 }

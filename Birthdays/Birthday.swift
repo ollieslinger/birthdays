@@ -29,10 +29,14 @@ struct Birthday: Identifiable, Codable {
         var nextBirthdayComponents = calendar.dateComponents([.month, .day], from: birthDate)
         nextBirthdayComponents.year = currentYear
 
+        let today = calendar.startOfDay(for: Date())
         let nextBirthdayThisYear = calendar.date(from: nextBirthdayComponents)!
-        if nextBirthdayThisYear >= Date() {
+
+        if nextBirthdayThisYear >= today {
+            // If birthday is today or in the future
             return nextBirthdayThisYear
         } else {
+            // Otherwise, it's in the next year
             nextBirthdayComponents.year = currentYear + 1
             return calendar.date(from: nextBirthdayComponents)!
         }
@@ -44,15 +48,18 @@ struct Birthday: Identifiable, Codable {
         var lastBirthdayComponents = calendar.dateComponents([.month, .day], from: birthDate)
         lastBirthdayComponents.year = currentYear
 
+        let today = calendar.startOfDay(for: Date())
         let lastBirthdayThisYear = calendar.date(from: lastBirthdayComponents)!
-        if lastBirthdayThisYear < Date() {
+
+        if lastBirthdayThisYear < today {
+            // If birthday already occurred this year
             return lastBirthdayThisYear
         } else {
+            // Otherwise, it was last year
             lastBirthdayComponents.year = currentYear - 1
             return calendar.date(from: lastBirthdayComponents)!
         }
     }
-
     var ageAtNextBirthday: Int {
         let calendar = Calendar.current
         let birthYear = calendar.component(.year, from: birthDate)
