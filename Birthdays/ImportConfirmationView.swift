@@ -88,12 +88,6 @@ struct ImportConfirmationView: View {
         // Filter the selected birthdays
         let selected = parsedBirthdays.filter { selectedBirthdays.contains($0.id) }
         
-        // Schedule notifications using the helper
-        let notificationTime = UserDefaults.standard.object(forKey: "notificationTime") as? Date ?? Date() // Default to current time
-        for birthday in selected {
-            scheduleNotification(for: birthday, at: notificationTime)
-        }
-
         // Pass selected birthdays back and dismiss
         onConfirm(selected)
         presentationMode.wrappedValue.dismiss() // Dismiss the view

@@ -60,11 +60,25 @@ struct PresentListView: View {
                             }
                             .padding()
                             .background(Color.white.opacity(0.9))
-                            
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                                            Button(role: .destructive) {
+                                                                deleteGift(item.gift, from: item.recipient)
+                                                            } label: {
+                                                                Label("Delete", systemImage: "trash")
+                                                            }
+                                                        }
+                                                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                                            Button {
+                                                                markGiftAsPurchased(item.gift, for: item.recipient)
+                                                            } label: {
+                                                                Label(item.gift.isPurchased ? "Unmark" : "Mark as Purchased", systemImage: "checkmark")
+                                                            }
+                                                            .tint(.green)
+                                                        }
                         }
                     }
                     .listStyle(PlainListStyle())
-                    .padding(.horizontal, -16) // Adjust to fit edge-to-edge
+                    .padding(.horizontal) // Adjust to fit edge-to-edge
                 }
 
                 Spacer()
@@ -96,6 +110,21 @@ struct PresentListView: View {
             .sheet(isPresented: $isAddingGift) {
                 AddGiftView(birthdays: $birthdays)
             }
+        }
+    }
+    // MARK: - Actions
+    private func deleteGift(_ gift: Birthday.Gift, from recipient: Birthday) {
+        if let recipientIndex = birthdays.firstIndex(where: { $0.id == recipient.id }) {
+            birthdays[recipientIndex].giftIdeas.removeAll { $0.id == gift.id }
+            saveBirthdays(birthdays)
+        }
+    }
+
+    private func markGiftAsPurchased(_ gift: Birthday.Gift, for recipient: Birthday) {
+        if let recipientIndex = birthdays.firstIndex(where: { $0.id == recipient.id }),
+           let giftIndex = birthdays[recipientIndex].giftIdeas.firstIndex(where: { $0.id == gift.id }) {
+            birthdays[recipientIndex].giftIdeas[giftIndex].isPurchased.toggle()
+            saveBirthdays(birthdays)
         }
     }
 }

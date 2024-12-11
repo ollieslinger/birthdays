@@ -1,55 +1,60 @@
+import Foundation
 import UserNotifications
 
 struct NotificationHelper {
-    /// Requests notification permissions from the user
-    static func requestPermissions() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
-            if let error = error {
-                print("Error requesting notification permissions: \(error)")
-            } else if granted {
-                print("Notification permissions granted.")
-            } else {
-                print("Notification permissions denied.")
+    static func checkAndSendNotifications(for birthdays: [Birthday]) {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let sevenDaysLater = calendar.date(byAdding: .day, value: 7, to: today)!
+
+        for birthday in birthdays {
+            if calendar.isDate(birthday.nextBirthday, inSameDayAs: today) {
+                scheduleNotification(
+                    title: "🎉 Happy Birthday Today!",
+                    message: "\(birthday.name) turns \(birthday.ageAtNextBirthday) today!",
+                    for: birthday
+                )
+            } else if calendar.isDate(birthday.nextBirthday, inSameDayAs: sevenDaysLater) {
+                scheduleNotification(
+                    title: "🎉 Upcoming Birthday!",
+                    message: "\(birthday.name) turns \(birthday.ageAtNextBirthday) in 7 days!",
+                    for: birthday
+                )
+            } else if calendar.isDate(birthday.nextBirthday, inSameDayAs: calendar.date(byAdding: .day, value: 1, to: today)!) {
+                scheduleNotification(
+                    title: "🎉 Upcoming Birthday Tomorrow!",
+                    message: "\(birthday.name) turns \(birthday.ageAtNextBirthday) tomorrow!",
+                    for: birthday
+                )
             }
         }
-
-        UNUserNotificationCenter.current().getNotificationSettings { settings in
-            print("Notification Settings: \(settings)")
-        }
     }
-}
 
-func scheduleNotification(for birthday: Birthday, at time: Date) {
-    let notificationTimes: [(title: String, daysBefore: Int)] = [
-        ("Upcoming Birthday in 7 Days!", 7),
-        ("Upcoming Birthday Tomorrow!", 1),
-        ("Happy Birthday Today!", 0)
-    ]
-
-    for notification in notificationTimes {
+    static func scheduleNotification(title: String, message: String, for birthday: Birthday) {
         let content = UNMutableNotificationContent()
-        content.title = notification.title
-        content.body = "\(birthday.name) turns \(birthday.ageAtNextBirthday) on \(birthday.nextBirthdayFormatted)."
+        content.title = title
+        content.body = message
         content.sound = .default
 
-        // Combine the notification time with the calculated trigger date
-        let triggerDate = Calendar.current.date(byAdding: .day, value: -notification.daysBefore, to: birthday.nextBirthday) ?? birthday.nextBirthday
-        let triggerTimeComponents = Calendar.current.dateComponents([.hour, .minute], from: time)
-        var triggerComponents = Calendar.current.dateComponents([.year, .month, .day], from: triggerDate)
-        triggerComponents.hour = triggerTimeComponents.hour
-        triggerComponents.minute = triggerTimeComponents.minute
+        // Set trigger for notification time
+        if let notificationTime = UserDefaults.standard.object(forKey: "notificationTime") as? Date {
+            var triggerDateComponents = Calendar.current.dateComponents([.hour, .minute], from: notificationTime)
+            let today = Calendar.current.startOfDay(for: Date())
+            triggerDateComponents.year = Calendar.current.component(.year, from: today)
+            triggerDateComponents.month = Calendar.current.component(.month, from: today)
+            triggerDateComponents.day = Calendar.current.component(.day, from: today)
 
-        let trigger = UNCalendarNotificationTrigger(dateMatching: triggerComponents, repeats: false)
+            let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDateComponents, repeats: false)
 
-        // Unique identifier for each notification
-        let request = UNNotificationRequest(identifier: "\(birthday.id.uuidString)-\(notification.daysBefore)", content: content, trigger: trigger)
+            let identifier = "\(birthday.id.uuidString)-\(title)"
+            let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
 
-        // Add the notification request
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
-                print("Error scheduling notification: \(error)")
-            } else {
-                print("Notification scheduled: \(notification.title) for \(birthday.name) on \(triggerDate).")
+            UNUserNotificationCenter.current().add(request) { error in
+                if let error = error {
+                    print("Failed to schedule notification: \(error)")
+                } else {
+                    print("Notification scheduled: \(title) for \(birthday.name) at \(triggerDateComponents).")
+                }
             }
         }
     }

@@ -98,10 +98,6 @@ struct AddBirthdayView: View {
         let newBirthday = Birthday(id: UUID(), name: name, birthDate: birthDate, giftIdeas: [])
         birthdays.append(newBirthday) // Add to the list
         saveBirthdays(birthdays) // Call the global save function
-
-        // Retrieve notification time from UserDefaults
-        let notificationTime = UserDefaults.standard.object(forKey: "notificationTime") as? Date ?? defaultNotificationTime()
-        scheduleNotification(for: newBirthday, at: notificationTime) // Schedule with specified time
         
         isAddingBirthday = false // Close the modal
     }

@@ -162,29 +162,19 @@ struct SettingsView: View {
         }
     }
 
+    private func saveNotificationTime() {
+        UserDefaults.standard.set(notificationTime, forKey: "notificationTime")
+    }
+
+    private func confirmNotificationTime() {
+        saveNotificationTime() // Persist the updated notification time
+        print("Notification time saved: \(formattedTime(notificationTime))")
+    }
+
     private func formattedTime(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.timeStyle = .short
         return formatter.string(from: date)
-    }
- 
-    private func confirmNotificationTime() {
-        saveNotificationTime() // Save the new time
-        rescheduleAllNotifications() // Reschedule all notifications
-    }
-
-    private func saveNotificationTime() {
-        // Store the updated notification time in AppStorage
-        UserDefaults.standard.set(notificationTime, forKey: "notificationTime")
-    }
-
-    private func rescheduleAllNotifications() {
-        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
-
-        let notificationTime = UserDefaults.standard.object(forKey: "notificationTime") as? Date ?? Date()
-        for birthday in birthdays {
-            scheduleNotification(for: birthday, at: notificationTime)
-        }
     }
     
     private func exportToCSV() {

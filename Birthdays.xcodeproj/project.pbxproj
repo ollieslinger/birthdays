@@ -16,6 +16,7 @@
 		B352168C2D0690D9002B26C7 /* Bicyclette-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B352167F2D0690D9002B26C7 /* Bicyclette-Black.ttf */; };
 		B3A9376A2D0889AB00BEA18D /* CSVImportTest.csv in Resources */ = {isa = PBXBuildFile; fileRef = B3A937692D0889AB00BEA18D /* CSVImportTest.csv */; };
 		B3A9376E2D08925000BEA18D /* CSVImportTest 2.csv in Resources */ = {isa = PBXBuildFile; fileRef = B3A9376D2D08925000BEA18D /* CSVImportTest 2.csv */; };
+		B3A9379D2D091E7400BEA18D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A9379C2D091E7400BEA18D /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +49,7 @@
 		B35216852D0690D9002B26C7 /* Bicyclette-Ultra.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Bicyclette-Ultra.ttf"; sourceTree = "<group>"; };
 		B3A937692D0889AB00BEA18D /* CSVImportTest.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = CSVImportTest.csv; sourceTree = "<group>"; };
 		B3A9376D2D08925000BEA18D /* CSVImportTest 2.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = "CSVImportTest 2.csv"; sourceTree = "<group>"; };
+		B3A9379C2D091E7400BEA18D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -109,6 +111,7 @@
 		B35216392D067A83002B26C7 = {
 			isa = PBXGroup;
 			children = (
+				B3A9379C2D091E7400BEA18D /* AppDelegate.swift */,
 				B35216442D067A83002B26C7 /* Birthdays */,
 				B35216552D067A85002B26C7 /* BirthdaysTests */,
 				B352165F2D067A85002B26C7 /* BirthdaysUITests */,
@@ -288,6 +291,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B3A9379D2D091E7400BEA18D /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -457,7 +461,6 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = BirthdaysIcon;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -490,7 +493,6 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = BirthdaysIcon;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (

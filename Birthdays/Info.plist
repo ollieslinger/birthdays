@@ -2,11 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>UILaunchScreen</key>
-	<dict>
-		<key>UIImageName</key>
-		<string>BirthdaysIcon.png</string>
-	</dict>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.birthdays.dailyNotificationCheck</string>
+	</array>
 	<key>CFBundleIconFile</key>
 	<string>BirthdaysIcon.png</string>
 	<key>UIAppFonts</key>
@@ -15,5 +14,15 @@
 		<string>Bicyclette-Black.ttf</string>
 		<string>Bicyclette-Bold.ttf</string>
 	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>processing</string>
+	</array>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIImageName</key>
+		<string>BirthdaysIcon.png</string>
+	</dict>
 </dict>
 </plist>

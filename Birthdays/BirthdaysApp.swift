@@ -9,6 +9,13 @@ import SwiftUI
 
 @main
 struct BirthdaysApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
+    init() {
+        // Request notification permissions during app initialization
+        NotificationHelper.requestPermissions()
+    }
+
     var body: some Scene {
         WindowGroup {
             SplashScreenView()
