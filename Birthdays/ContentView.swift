@@ -51,7 +51,6 @@ struct ContentView: View {
                 .font(.custom("Bicyclette-Bold", size: 36))
                 .foregroundColor(.black)
             Spacer()
-            notificationsButton
             presentListButton
             settingsButton
         }

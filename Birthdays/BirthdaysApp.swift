@@ -19,6 +19,7 @@ struct BirthdaysApp: App {
     var body: some Scene {
         WindowGroup {
             SplashScreenView()
+                .environment(\.appDelegate, appDelegate) // Pass the AppDelegate as an environment value
                 .preferredColorScheme(.light) // Enforces light mode across the app
                 .accentColor(.blue) // Set global accent color
         }

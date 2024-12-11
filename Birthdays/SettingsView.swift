@@ -8,6 +8,7 @@ struct SettingsView: View {
     @AppStorage("notificationTime") private var notificationTime: Date = defaultNotificationTime
     @State private var parsedBirthdays: [Birthday] = []
     @State private var showConfirmationPage = false
+    @Environment(\.appDelegate) var appDelegate
 
     static var defaultNotificationTime: Date {
         var components = DateComponents()
@@ -169,8 +170,11 @@ struct SettingsView: View {
     private func confirmNotificationTime() {
         saveNotificationTime() // Persist the updated notification time
         print("Notification time saved: \(formattedTime(notificationTime))")
-    }
 
+        appDelegate?.scheduleAppRefresh() // Use Environment appDelegate
+        print("App refresh rescheduled with the new notification time.")
+    }
+    
     private func formattedTime(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.timeStyle = .short
