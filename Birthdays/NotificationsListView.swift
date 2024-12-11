@@ -19,11 +19,13 @@ struct NotificationsListView: View {
                     .font(.custom("Bicyclette-Bold", size: 24))
                     .foregroundColor(.black)
                 Spacer()
-                Button("Clear All") {
+                Button(action: {
                     clearAllNotifications()
+                }) {
+                    Text("Clear All")
+                        .font(.custom("Bicyclette-Bold", size: 16))
+                        .foregroundColor(notifications.isEmpty ? Color.gray : Color.red) // Text turns gray when disabled
                 }
-                .font(.custom("Bicyclette-Bold", size: 16))
-                .foregroundColor(.red)
                 .disabled(notifications.isEmpty) // Disable button if no notifications
             }
             .padding(.horizontal)

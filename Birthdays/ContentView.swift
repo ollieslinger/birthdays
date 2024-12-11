@@ -1,8 +1,10 @@
 // Main ContentView
 import SwiftUI
 import UserNotifications
+import ConfettiSwiftUI
 
 struct ContentView: View {
+    @State private var counter: Int = 20
     @State private var birthdays: [Birthday] = []
     @State private var isAddingBirthday = false
     @State private var isShowingSettings = false
@@ -42,7 +44,9 @@ struct ContentView: View {
                 SettingsView(birthdays: $birthdays)
             }
         }
+        .confettiCannon(counter: $counter, num: 50, openingAngle: Angle(degrees: 0), closingAngle: Angle(degrees: 360), radius: 200)
     }
+
 
     // MARK: - Header with Toolbar
     private var headerWithToolbar: some View {
@@ -50,6 +54,12 @@ struct ContentView: View {
             Text("🎉 Birthdays")
                 .font(.custom("Bicyclette-Bold", size: 36))
                 .foregroundColor(.black)
+                .onTapGesture {
+                     // Trigger the confetti
+                }
+                 .onLongPressGesture {
+                     counter += 1 // Trigger confetti on long press
+                 }
             Spacer()
             presentListButton
             notificationsButton
