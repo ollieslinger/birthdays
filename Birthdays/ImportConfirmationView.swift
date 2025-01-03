@@ -4,6 +4,7 @@ import Foundation
 struct ImportConfirmationView: View {
     @Binding var parsedBirthdays: [Birthday]
     @State private var selectedBirthdays: Set<UUID> = []
+    @State private var selectAll = false // Tracks the state of the "Select All" button
     @Environment(\.presentationMode) var presentationMode // For dismissing the view
 
     var onConfirm: ([Birthday]) -> Void
@@ -12,10 +13,24 @@ struct ImportConfirmationView: View {
     var body: some View {
         NavigationView {
             VStack {
+                // Header
                 Text("Select Birthdays to Import")
                     .font(.custom("Bicyclette-Bold", size: 24))
                     .padding()
 
+                // "Select All" Button
+                Button(action: toggleSelectAll) {
+                    Text(selectAll ? "Deselect All" : "Select All")
+                        .font(.custom("Bicyclette-Bold", size: 16))
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 16)
+                        .background(Color.orange)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                }
+                .padding(.bottom)
+
+                // List or Empty State
                 if parsedBirthdays.isEmpty {
                     Text("No birthdays to import.")
                         .font(.custom("Bicyclette-Regular", size: 18))
@@ -49,9 +64,9 @@ struct ImportConfirmationView: View {
                     }
                 }
 
+                // Buttons for "Cancel" and "Confirm"
                 HStack {
                     Button(action: {
-                        print("Cancel pressed.") // Debugging
                         onCancel()
                         presentationMode.wrappedValue.dismiss() // Dismiss the view
                     }) {
@@ -81,6 +96,18 @@ struct ImportConfirmationView: View {
             .onAppear {
                 print("Parsed Birthdays: \(parsedBirthdays)") // Debugging
             }
+        }
+    }
+
+    private func toggleSelectAll() {
+        selectAll.toggle()
+
+        if selectAll {
+            // Select all birthdays
+            selectedBirthdays = Set(parsedBirthdays.map { $0.id })
+        } else {
+            // Deselect all birthdays
+            selectedBirthdays.removeAll()
         }
     }
 

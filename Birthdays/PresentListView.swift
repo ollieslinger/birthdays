@@ -3,6 +3,7 @@ import SwiftUI
 struct PresentListView: View {
     @Binding var birthdays: [Birthday] // To allow adding gifts
     @State private var isAddingGift = false // State to show the add gift sheet
+    @State private var editBirthday: Birthday? // State to track the birthday being edited
 
     var giftsWithRecipients: [(gift: Birthday.Gift, recipient: Birthday)] {
         birthdays.flatMap { birthday in
@@ -61,21 +62,26 @@ struct PresentListView: View {
                             }
                             .padding()
                             .background(Color.white.opacity(0.9))
+                            .cornerRadius(10)
+                            .onTapGesture {
+                                // Open the EditBirthdayView for the recipient
+                                editBirthday = item.recipient
+                            }
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                                            Button(role: .destructive) {
-                                                                deleteGift(item.gift, from: item.recipient)
-                                                            } label: {
-                                                                Label("Delete", systemImage: "trash")
-                                                            }
-                                                        }
-                                                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                                                            Button {
-                                                                markGiftAsPurchased(item.gift, for: item.recipient)
-                                                            } label: {
-                                                                Label(item.gift.isPurchased ? "Unmark" : "Mark as Purchased", systemImage: "checkmark")
-                                                            }
-                                                            .tint(.green)
-                                                        }
+                                Button(role: .destructive) {
+                                    deleteGift(item.gift, from: item.recipient)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
+                            .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                Button {
+                                    markGiftAsPurchased(item.gift, for: item.recipient)
+                                } label: {
+                                    Label(item.gift.isPurchased ? "Unmark" : "Mark as Purchased", systemImage: "checkmark")
+                                }
+                                .tint(.green)
+                            }
                         }
                     }
                     .listStyle(PlainListStyle())
@@ -111,8 +117,16 @@ struct PresentListView: View {
             .sheet(isPresented: $isAddingGift) {
                 AddGiftView(birthdays: $birthdays)
             }
+            .sheet(item: $editBirthday) { birthday in
+                EditBirthdayView(
+                    birthdays: $birthdays,
+                    birthdayToEdit: birthday,
+                    editBirthday: $editBirthday
+                )
+            }
         }
     }
+
     // MARK: - Actions
     private func deleteGift(_ gift: Birthday.Gift, from recipient: Birthday) {
         if let recipientIndex = birthdays.firstIndex(where: { $0.id == recipient.id }) {

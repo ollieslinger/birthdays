@@ -30,6 +30,7 @@ struct AddGiftView: View {
                             .foregroundColor(.black)
 
                         Picker("Select Recipient", selection: $selectedRecipient) {
+                            Text("Pick Someone").tag(UUID?.none) // Default option
                             ForEach(birthdays) { birthday in
                                 Text(birthday.name).tag(birthday.id as UUID?)
                             }

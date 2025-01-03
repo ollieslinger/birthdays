@@ -121,7 +121,7 @@ struct NotificationHelper {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = message
-        content.sound = .default
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("partyhornnotification.wav"))
 
         // Set up a notification trigger for the specified date and time
         let triggerComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: triggerDate)

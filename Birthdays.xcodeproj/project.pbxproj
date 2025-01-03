@@ -14,6 +14,7 @@
 		B352168A2D0690D9002B26C7 /* Bicyclette-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B35216842D0690D9002B26C7 /* Bicyclette-Thin.ttf */; };
 		B352168B2D0690D9002B26C7 /* Bicyclette-Ultra.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B35216852D0690D9002B26C7 /* Bicyclette-Ultra.ttf */; };
 		B352168C2D0690D9002B26C7 /* Bicyclette-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B352167F2D0690D9002B26C7 /* Bicyclette-Black.ttf */; };
+		B361BB422D2B3C49005F3395 /* partyhornnotification.wav in Resources */ = {isa = PBXBuildFile; fileRef = B361BB412D2B3C49005F3395 /* partyhornnotification.wav */; };
 		B3A9376A2D0889AB00BEA18D /* CSVImportTest.csv in Resources */ = {isa = PBXBuildFile; fileRef = B3A937692D0889AB00BEA18D /* CSVImportTest.csv */; };
 		B3A9376E2D08925000BEA18D /* CSVImportTest 2.csv in Resources */ = {isa = PBXBuildFile; fileRef = B3A9376D2D08925000BEA18D /* CSVImportTest 2.csv */; };
 		B3A9379D2D091E7400BEA18D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A9379C2D091E7400BEA18D /* AppDelegate.swift */; };
@@ -48,6 +49,7 @@
 		B35216832D0690D9002B26C7 /* Bicyclette-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Bicyclette-Regular.ttf"; sourceTree = "<group>"; };
 		B35216842D0690D9002B26C7 /* Bicyclette-Thin.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Bicyclette-Thin.ttf"; sourceTree = "<group>"; };
 		B35216852D0690D9002B26C7 /* Bicyclette-Ultra.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Bicyclette-Ultra.ttf"; sourceTree = "<group>"; };
+		B361BB412D2B3C49005F3395 /* partyhornnotification.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = partyhornnotification.wav; sourceTree = "<group>"; };
 		B3A937692D0889AB00BEA18D /* CSVImportTest.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = CSVImportTest.csv; sourceTree = "<group>"; };
 		B3A9376D2D08925000BEA18D /* CSVImportTest 2.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = "CSVImportTest 2.csv"; sourceTree = "<group>"; };
 		B3A9379C2D091E7400BEA18D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -126,6 +128,7 @@
 				B35216852D0690D9002B26C7 /* Bicyclette-Ultra.ttf */,
 				B3A937692D0889AB00BEA18D /* CSVImportTest.csv */,
 				B3A9376D2D08925000BEA18D /* CSVImportTest 2.csv */,
+				B361BB412D2B3C49005F3395 /* partyhornnotification.wav */,
 				B35216432D067A83002B26C7 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -265,6 +268,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B3A9376A2D0889AB00BEA18D /* CSVImportTest.csv in Resources */,
+				B361BB422D2B3C49005F3395 /* partyhornnotification.wav in Resources */,
 				B35216862D0690D9002B26C7 /* Bicyclette-Regular.ttf in Resources */,
 				B3A9376E2D08925000BEA18D /* CSVImportTest 2.csv in Resources */,
 				B35216872D0690D9002B26C7 /* Bicyclette-Bold.ttf in Resources */,

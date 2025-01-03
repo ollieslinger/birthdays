@@ -19,34 +19,41 @@ struct ContentView: View {
 
     var body: some View {
         NavigationView {
-            VStack(alignment: .leading, spacing: 16) {
-                headerWithToolbar
-                searchBarView
-                filterPickerView
-                contentView
-            }
-            .onAppear {
-                NotificationHelper.requestPermissions()
-                loadBirthdays()
-            }
-            .background(Color.white)
-            .sheet(isPresented: $isAddingBirthday) {
-                AddBirthdayView(isAddingBirthday: $isAddingBirthday, birthdays: $birthdays)
-            }
-            .sheet(item: $editBirthday) { birthdayToEdit in
-                EditBirthdayView(
-                    birthdays: $birthdays,
-                    birthdayToEdit: birthdayToEdit,
-                    editBirthday: $editBirthday // Bind to editBirthday for dismissal
-                )
-            }
-            .sheet(isPresented: $isShowingSettings) {
-                SettingsView(birthdays: $birthdays)
-            }
-        }
-        .confettiCannon(counter: $counter, num: 50, openingAngle: Angle(degrees: 0), closingAngle: Angle(degrees: 360), radius: 200)
-    }
+            ZStack {
+                // Background layer to capture taps and dismiss keyboard
+                Color.white
+                    .edgesIgnoringSafeArea(.all)
+                    .onTapGesture {
+                        hideKeyboard()
+                    }
 
+                VStack(alignment: .leading, spacing: 16) {
+                    headerWithToolbar
+                    searchBarView
+                    filterPickerView
+                    contentView
+                }
+                .onAppear {
+                    NotificationHelper.requestPermissions()
+                    loadBirthdays()
+                }
+                .sheet(isPresented: $isAddingBirthday) {
+                    AddBirthdayView(isAddingBirthday: $isAddingBirthday, birthdays: $birthdays)
+                }
+                .sheet(item: $editBirthday) { birthdayToEdit in
+                    EditBirthdayView(
+                        birthdays: $birthdays,
+                        birthdayToEdit: birthdayToEdit,
+                        editBirthday: $editBirthday // Bind to editBirthday for dismissal
+                    )
+                }
+                .sheet(isPresented: $isShowingSettings) {
+                    SettingsView(birthdays: $birthdays)
+                }
+            }
+            .confettiCannon(counter: $counter, num: 50, openingAngle: Angle(degrees: 0), closingAngle: Angle(degrees: 360), radius: 200)
+        }
+    }
 
     // MARK: - Header with Toolbar
     private var headerWithToolbar: some View {
@@ -55,11 +62,11 @@ struct ContentView: View {
                 .font(.custom("Bicyclette-Bold", size: 36))
                 .foregroundColor(.black)
                 .onTapGesture {
-                     // Trigger the confetti
+                    // Trigger the confetti
                 }
-                 .onLongPressGesture {
-                     counter += 1 // Trigger confetti on long press
-                 }
+                .onLongPressGesture {
+                    counter += 1 // Trigger confetti on long press
+                }
             Spacer()
             presentListButton
             notificationsButton
@@ -75,6 +82,11 @@ struct ContentView: View {
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .padding(.horizontal)
             .font(.custom("Bicyclette-Regular", size: 14))
+    }
+
+    // MARK: - Helper Function to Hide Keyboard
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 
     // MARK: - Filter Picker
@@ -190,6 +202,7 @@ struct ContentView: View {
         }
         .listStyle(PlainListStyle())
     }
+
     // MARK: - Add Birthday Button
     private var addBirthdayButton: some View {
         Button(action: {
