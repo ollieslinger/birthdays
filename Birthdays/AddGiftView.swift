@@ -31,7 +31,7 @@ struct AddGiftView: View {
 
                         Picker("Select Recipient", selection: $selectedRecipient) {
                             Text("Pick Someone").tag(UUID?.none) // Default option
-                            ForEach(birthdays) { birthday in
+                            ForEach(birthdays.sorted(by: { $0.name < $1.name })) { birthday in
                                 Text(birthday.name).tag(birthday.id as UUID?)
                             }
                         }

@@ -83,6 +83,22 @@ struct NotificationsListView: View {
             }
 
             Spacer() // Push content to the top
+//            // Test Notification Button
+//            Button(action: {
+//                scheduleTestNotification()
+//            }) {
+//                HStack {
+//                    Spacer()
+//                    Text("Test Notification")
+//                        .font(.custom("Bicyclette-Bold", size: 18))
+//                        .padding()
+//                        .background(Color.orange)
+//                        .foregroundColor(.white)
+//                        .cornerRadius(12)
+//                    Spacer()
+//                }
+//            }
+            .padding(.horizontal)
         }
         .onAppear(perform: loadNotifications)
         .background(Color.white)
@@ -118,5 +134,28 @@ struct NotificationsListView: View {
     private func deleteNotification(identifier: String) {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier])
         loadNotifications() // Refresh the list
+    }
+    // MARK: - Schedule Test Notification
+    private func scheduleTestNotification() {
+        let content = UNMutableNotificationContent()
+        content.title = "🎉 Test Notification"
+        content.body = "This is a test notification to check if everything works fine."
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("partyhornnotification.wav"))
+
+        // Trigger the notification after 5 seconds
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+
+        // Create the request
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+
+        // Schedule the notification
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Failed to schedule test notification: \(error.localizedDescription)")
+            } else {
+                print("Test notification scheduled successfully.")
+                loadNotifications() // Refresh the list
+            }
+        }
     }
 }
