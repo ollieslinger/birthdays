@@ -15,7 +15,7 @@ struct SplashScreenView: View {
                     .scaledToFit()
                     .frame(width: 100, height: 100)
                     .foregroundColor(.orange)
-                Text("🎉 Birthday Tracker")
+                Text("🎉 Birthdays by bambina")
                     .font(.custom("Bicyclette-Bold", size: 36))
                     .foregroundColor(.orange)
                     .padding(.top, 16)
