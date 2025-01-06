@@ -3,6 +3,9 @@ import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @Binding var birthdays: [Birthday]
+    @State private var groups: [TagGroup] = loadGroups() // Load saved groups
+    @State private var isShowingGroupEditor = false // Controls AddGroupView
+    @State private var isShowingEditGroup = false // Controls EditGroupView
     @State private var showDocumentPicker = false
     @State private var isShowingTimePicker = false // Toggles picker visibility
     @AppStorage("notificationTime") private var notificationTime: Date = defaultNotificationTime
@@ -26,22 +29,41 @@ struct SettingsView: View {
                     .foregroundColor(.black)
                     .padding(.horizontal)
                     .padding(.top)
+
                 Divider()
                     .background(Color.gray)
 
-                // Buttons Section
+                // Notifications Section
                 VStack(alignment: .leading, spacing: 16) {
-                    // Notification Time Concertina
+                    Text("Notifications")
+                        .font(.custom("Bicyclette-Bold", size: 20))
+                        .foregroundColor(.black)
+                        .padding(.bottom, 8)
                     notificationTimeSection
+                }
+                .padding(.horizontal)
 
-                    // Export Button
+                // Import/Export Section
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Import/Export")
+                        .font(.custom("Bicyclette-Bold", size: 20))
+                        .foregroundColor(.black)
+                        .padding(.bottom, 8)
                     exportButton
-
-                    // Import Button
                     importButton
                 }
                 .padding(.horizontal)
 
+                // Groups Section
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Groups")
+                        .font(.custom("Bicyclette-Bold", size: 20))
+                        .foregroundColor(.black)
+                        .padding(.bottom, 8)
+                    groupsSection
+                }
+                .padding(.horizontal)
+                
                 Spacer()
             }
             .sheet(isPresented: $showDocumentPicker) {
@@ -59,8 +81,71 @@ struct SettingsView: View {
                     }
                 )
             }
+            .sheet(isPresented: $isShowingGroupEditor) {
+                AddGroupView(groups: $groups) // Updated to AddGroupView
+            }
+            .sheet(isPresented: $isShowingEditGroup) {
+                ManageGroupView(groups: $groups, birthdays: $birthdays) // Updated group editor
+            }
             .background(Color.white)
             .navigationBarHidden(true)
+        }
+    }
+
+    // MARK: - Groups Section
+    private var groupsSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            // Button to create a new group
+            Button(action: { isShowingGroupEditor = true }) {
+                HStack {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.orange)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Create New Group")
+                            .font(.custom("Bicyclette-Bold", size: 18))
+                            .foregroundColor(.black)
+                        Text("Add a new group to organize birthdays.")
+                            .font(.custom("Bicyclette-Regular", size: 14))
+                            .foregroundColor(.gray)
+                    }
+                    Spacer()
+                }
+                .padding()
+                .background(Color.white.opacity(0.9))
+                .cornerRadius(10)
+                .shadow(radius: 2)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.orange, lineWidth: 1)
+                )
+            }
+
+            // Button to manage existing groups
+            Button(action: { isShowingEditGroup = true }) {
+                HStack {
+                    Image(systemName: "pencil.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.orange)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Manage Groups")
+                            .font(.custom("Bicyclette-Bold", size: 18))
+                            .foregroundColor(.black)
+                        Text("Edit or delete existing groups.")
+                            .font(.custom("Bicyclette-Regular", size: 14))
+                            .foregroundColor(.gray)
+                    }
+                    Spacer()
+                }
+                .padding()
+                .background(Color.white.opacity(0.9))
+                .cornerRadius(10)
+                .shadow(radius: 2)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.orange, lineWidth: 1)
+                )
+            }
         }
     }
     // MARK: - Notification Time Section

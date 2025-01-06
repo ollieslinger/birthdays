@@ -94,3 +94,15 @@ struct Birthday: Identifiable, Codable {
         return (components.day ?? 0) // Add 1 to include the starting day
     }
 }
+
+struct TagGroup: Identifiable, Codable, Hashable {
+    let id: UUID
+    var name: String
+    var members: [UUID] // UUIDs of birthdays in this group
+
+    init(id: UUID = UUID(), name: String, members: [UUID] = []) {
+        self.id = id
+        self.name = name
+        self.members = members
+    }
+}

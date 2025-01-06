@@ -49,8 +49,9 @@ struct NotificationHelper {
                 let birthdaySevenDaysIdentifier = "\(birthday.id.uuidString)-7"
                 
                 // Check for birthdays today
-                if calendar.isDate(birthday.nextBirthday, inSameDayAs: tomorrow) {
-                    if let scheduledTime = combineDateAndTime(date: tomorrow, time: notificationTime) {
+                if calendar.isDate(birthday.nextBirthday, inSameDayAs: today) {
+                    if let scheduledTime = combineDateAndTime(date: today, time: notificationTime),
+                       scheduledTime > Date() { // Ensure the notification time is in the future
                         validIdentifiers.insert(birthdayTodayIdentifier)
                         print("Notification validated/scheduled: Birthday Today! for \(birthday.name).")
                         queueNotification(
@@ -61,6 +62,8 @@ struct NotificationHelper {
                             triggerDate: scheduledTime
                         )
                         notificationsScheduled += 1
+                    } else {
+                        print("Skipping today's notification for \(birthday.name) as the scheduled time has passed.")
                     }
                 }
                 

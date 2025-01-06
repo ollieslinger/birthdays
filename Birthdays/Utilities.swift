@@ -17,3 +17,17 @@ func loadBirthdays() -> [Birthday] {
     }
     return []
 }
+
+func saveGroups(_ groups: [TagGroup]) {
+    if let encoded = try? JSONEncoder().encode(groups) {
+        UserDefaults.standard.set(encoded, forKey: "groups")
+    }
+}
+
+func loadGroups() -> [TagGroup] {
+    if let data = UserDefaults.standard.data(forKey: "groups"),
+       let decoded = try? JSONDecoder().decode([TagGroup].self, from: data) {
+        return decoded
+    }
+    return []
+}

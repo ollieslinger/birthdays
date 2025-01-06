@@ -11,7 +11,13 @@ struct ContentView: View {
     @State private var searchText: String = ""
     @State private var filterOption: FilterOption = .upcoming
     @State private var editBirthday: Birthday? = nil
+    @State private var groups: [TagGroup] = loadGroups() // Load saved groups
 
+    // Filters
+    @State private var selectedTags: Set<TagGroup> = [] // Selected tags for filtering
+    @State private var selectedMonths: Set<Int> = [] // Selected months for filtering
+    @State private var isFilterSheetPresented = false // Toggle for filter sheet
+    
     enum FilterOption: String, CaseIterable {
         case upcoming = "Upcoming"
         case past = "Past"
@@ -29,7 +35,7 @@ struct ContentView: View {
 
                 VStack(alignment: .leading, spacing: 16) {
                     headerWithToolbar
-                    searchBarView
+                    searchBarWithFilterButton
                     filterPickerView
                     contentView
                 }
@@ -50,6 +56,15 @@ struct ContentView: View {
                 .sheet(isPresented: $isShowingSettings) {
                     SettingsView(birthdays: $birthdays)
                 }
+
+                .sheet(isPresented: $isFilterSheetPresented) {
+                    FilterSheetView(
+                        groups: groups,
+                        selectedTags: $selectedTags,
+                        selectedMonths: $selectedMonths
+                    )
+                }
+
             }
             .confettiCannon(counter: $counter, num: 50, openingAngle: Angle(degrees: 0), closingAngle: Angle(degrees: 360), radius: 200)
         }
@@ -157,10 +172,24 @@ struct ContentView: View {
                             Image(systemName: filterOption == .upcoming ? "calendar.circle.fill" : "clock.fill")
                                 .foregroundColor(filterOption == .upcoming ? .blue : .orange)
                                 .padding(.trailing, 8)
+                            
                             Text(birthday.name)
                                 .font(.custom("Bicyclette-Bold", size: 18))
                                 .foregroundColor(.black)
+                            
+                            // Simplified tag display
+                            let tagDisplay = getTagDisplay(for: birthday)
+                            if !tagDisplay.isEmpty {
+                                Text(tagDisplay)
+                                    .font(.custom("Bicyclette-Regular", size: 12))
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(Color.orange.opacity(0.2))
+                                    .foregroundColor(.orange)
+                                    .cornerRadius(8)
+                            }
                         }
+
                         Text(filterOption == .upcoming ?
                              "Turns \(birthday.ageAtNextBirthday) on \(birthday.nextBirthdayFormatted)" :
                              "Turned \(birthday.ageAtLastBirthday) on \(birthday.lastBirthdayFormatted)"
@@ -191,18 +220,18 @@ struct ContentView: View {
                 .background(Color.white.opacity(0.9)) // Keep the background neutral
                 .cornerRadius(10)
                 .shadow(color: cardShadowColor(for: birthday), radius: 5, x: 0, y: 2) // Dynamic shadow color
-                .cornerRadius(10)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(cardBorderColor(for: birthday), lineWidth: 1) // Add thin border
                 )
-
             }
             .onDelete(perform: deleteBirthday)
         }
         .listStyle(PlainListStyle())
+        .refreshable {
+            refreshData()
+        }
     }
-
     // MARK: - Add Birthday Button
     private var addBirthdayButton: some View {
         Button(action: {
@@ -270,10 +299,11 @@ struct ContentView: View {
     private func loadBirthdays() {
         if let savedData = UserDefaults.standard.data(forKey: "birthdays"),
            let decoded = try? JSONDecoder().decode([Birthday].self, from: savedData) {
-            birthdays = decoded
+            birthdays = decoded // Updates the birthdays state variable
+        } else {
+            birthdays = [] // Ensure birthdays is reset if nothing is loaded
         }
     }
-
     private func deleteBirthday(at offsets: IndexSet) {
         withAnimation {
             // Map offsets from filteredAndSearchedBirthdays to the original birthdays array
@@ -304,25 +334,81 @@ struct ContentView: View {
         ]
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: notificationIdentifiers)
     }
-    // MARK: - Helper Properties
+    
+    private func getTagDisplay(for birthday: Birthday) -> String {
+        let tags = getTags(for: birthday)
+        guard let firstTag = tags.first else {
+            return "" // No tags
+        }
+
+        let additionalTagsCount = tags.count - 1
+        if additionalTagsCount > 0 {
+            return "\(firstTag.name) + \(additionalTagsCount) more"
+        } else {
+            return firstTag.name
+        }
+    }
+
+    private func getTags(for birthday: Birthday) -> [TagGroup] {
+        groups.filter { $0.members.contains(birthday.id) }
+    }
+    // MARK: - Refresh Data
+    private func refreshData() {
+        loadBirthdays() // Updates the birthdays state variable
+        groups = loadGroups() // Updates the groups state variable
+        print("[DEBUG] Refreshed birthdays and groups.")
+        print("[DEBUG] Total birthdays: \(birthdays.count)")
+        print("[DEBUG] Total groups: \(groups.count)")
+    }
+    
+    // MARK: - Search Bar with Filter Button
+    private var searchBarWithFilterButton: some View {
+        HStack {
+            TextField("Search by name...", text: $searchText)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .font(.custom("Bicyclette-Regular", size: 14))
+            Button(action: { isFilterSheetPresented = true }) {
+                Image(systemName: "line.horizontal.3.decrease.circle")
+                    .font(.title2)
+                    .foregroundColor(.orange)
+            }
+        }
+        .padding(.horizontal)
+    }
+    // MARK: - Filtered and Searched Birthdays
     var filteredAndSearchedBirthdays: [Birthday] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
 
+        // Base filtering
         let filteredBirthdays: [Birthday]
         switch filterOption {
         case .upcoming:
-            // Include today and future birthdays
             filteredBirthdays = birthdays.filter { $0.nextBirthday >= today }
                 .sorted(by: { $0.nextBirthday < $1.nextBirthday })
         case .past:
-            // Include only birthdays strictly before today
             filteredBirthdays = birthdays.filter { $0.lastBirthday < today }
                 .sorted(by: { $0.lastBirthday > $1.lastBirthday })
         }
 
-        return searchText.isEmpty ? filteredBirthdays :
-            filteredBirthdays.filter { $0.name.lowercased().contains(searchText.lowercased()) }
+        // Apply tag filtering
+        let tagFiltered = selectedTags.isEmpty
+            ? filteredBirthdays
+            : filteredBirthdays.filter { birthday in
+                !selectedTags.isDisjoint(with: getTags(for: birthday))
+            }
+
+        // Apply month filtering
+        let monthFiltered = selectedMonths.isEmpty
+            ? tagFiltered
+            : tagFiltered.filter { birthday in
+                selectedMonths.contains(Calendar.current.component(.month, from: birthday.nextBirthday))
+            }
+
+        // Apply search filtering
+        return searchText.isEmpty
+            ? monthFiltered
+            : monthFiltered.filter { $0.name.lowercased().contains(searchText.lowercased()) }
     }
 }
     //MARK: Background Shadow Colour
@@ -347,3 +433,4 @@ struct ContentView: View {
         }
         return Color.gray.opacity(0.5)
     }
+
