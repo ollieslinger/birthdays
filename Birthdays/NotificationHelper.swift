@@ -68,7 +68,7 @@ struct NotificationHelper {
                 }
                 
                 // Check for birthdays tomorrow
-                if calendar.isDate(birthday.nextBirthday, inSameDayAs: dayAfterTomorrow) {
+                if calendar.isDate(birthday.nextBirthday, inSameDayAs: tomorrow) {
                     if let scheduledTime = combineDateAndTime(date: tomorrow, time: notificationTime) {
                         validIdentifiers.insert(birthdayTomorrowIdentifier)
                         print("Notification validated/scheduled: Birthday Tomorrow! for \(birthday.name).")
@@ -85,7 +85,7 @@ struct NotificationHelper {
                 
                 // Check for birthdays in 7 days
                 if calendar.isDate(birthday.nextBirthday, inSameDayAs: eightDaysLater) {
-                    if let scheduledTime = combineDateAndTime(date: tomorrow, time: notificationTime) {
+                    if let scheduledTime = combineDateAndTime(date: eightDaysLater, time: notificationTime) {
                         validIdentifiers.insert(birthdaySevenDaysIdentifier)
                         print("Notification validated/scheduled: Birthday in 7 Days! for \(birthday.name).")
                         queueNotification(
