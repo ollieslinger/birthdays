@@ -3,7 +3,8 @@ import SwiftUI
 struct PresentListView: View {
     @Binding var birthdays: [Birthday] // To allow adding gifts
     @State private var isAddingGift = false // State to show the add gift sheet
-    @State private var editBirthday: Birthday? // State to track the birthday being edited
+    @State private var selectedGift: Birthday.Gift? // State to track the selected gift for editing
+    @State private var selectedRecipient: Birthday? // State to track the recipient for the selected gift
 
     var giftsWithRecipients: [(gift: Birthday.Gift, recipient: Birthday)] {
         birthdays.flatMap { birthday in
@@ -78,7 +79,8 @@ struct PresentListView: View {
                         }
                         .background(Color.white.opacity(0.9))
                         .onTapGesture {
-                            editBirthday = item.recipient
+                            selectedGift = item.gift
+                            selectedRecipient = item.recipient
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                             Button(role: .destructive) {
@@ -129,12 +131,17 @@ struct PresentListView: View {
         .sheet(isPresented: $isAddingGift) {
             AddGiftView(birthdays: $birthdays)
         }
-        .sheet(item: $editBirthday) { birthday in
-            EditBirthdayView(
-                birthdays: $birthdays,
-                birthdayToEdit: birthday,
-                editBirthday: $editBirthday
-            )
+        .sheet(item: $selectedGift) { gift in
+            if let recipient = selectedRecipient {
+                EditGiftView(
+                    birthdays: $birthdays,
+                    gift: gift,
+                    recipient: recipient,
+                    onSave: { updatedGift in
+                        updateGift(updatedGift, for: recipient)
+                    }
+                )
+            }
         }
     }
 
@@ -153,11 +160,19 @@ struct PresentListView: View {
             saveBirthdays(birthdays)
         }
     }
-  
+
     private func clearGifts() {
         for i in birthdays.indices {
             birthdays[i].giftIdeas.removeAll()
         }
         saveBirthdays(birthdays)
+    }
+
+    private func updateGift(_ updatedGift: Birthday.Gift, for recipient: Birthday) {
+        if let recipientIndex = birthdays.firstIndex(where: { $0.id == recipient.id }),
+           let giftIndex = birthdays[recipientIndex].giftIdeas.firstIndex(where: { $0.id == updatedGift.id }) {
+            birthdays[recipientIndex].giftIdeas[giftIndex] = updatedGift
+            saveBirthdays(birthdays)
+        }
     }
 }

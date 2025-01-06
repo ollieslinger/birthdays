@@ -10,6 +10,7 @@ struct Birthday: Identifiable, Codable {
     struct Gift: Identifiable, Codable {
         let id: UUID
         var name: String
+        var link: String? // Optional link
         var isPurchased: Bool
     }
     

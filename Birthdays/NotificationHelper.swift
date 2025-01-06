@@ -25,7 +25,7 @@ struct NotificationHelper {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         let tomorrow = calendar.date(byAdding: .day, value: 1, to: today)!
-        let dayAfterTomorrow = calendar.date(byAdding: .day, value: 2, to: today)!
+        _ = calendar.date(byAdding: .day, value: 2, to: today)!
         let eightDaysLater = calendar.date(byAdding: .day, value: 8, to: today)!
 
         print("Checking for birthdays to schedule notifications...")

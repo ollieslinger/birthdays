@@ -190,13 +190,23 @@ struct ContentView: View {
                             }
                         }
 
-                        Text(filterOption == .upcoming ?
-                             "Turns \(birthday.ageAtNextBirthday) on \(birthday.nextBirthdayFormatted)" :
-                             "Turned \(birthday.ageAtLastBirthday) on \(birthday.lastBirthdayFormatted)"
-                        )
-                        .font(.custom("Bicyclette-Regular", size: 14))
-                        .foregroundColor(.gray)
-
+                        if birthday.ageAtNextBirthday <= 0 {
+                            Text(filterOption == .upcoming ?
+                                "Due to be born on \(birthday.nextBirthdayFormatted)" :
+                                "Wasn't yet born on \(birthday.lastBirthdayFormatted)"
+                                 )
+                                .font(.custom("Bicyclette-Regular", size: 14))
+                                .foregroundColor(.gray)
+                            
+                        } else {
+                            Text(filterOption == .upcoming ?
+                                "Turns \(birthday.ageAtNextBirthday) on \(birthday.nextBirthdayFormatted)" :
+                                "Turned \(birthday.ageAtLastBirthday) on \(birthday.lastBirthdayFormatted)"
+                            )
+                            .font(.custom("Bicyclette-Regular", size: 14))
+                            .foregroundColor(.gray)
+                        }
+                        
                         if !birthday.giftIdeas.isEmpty {
                             Text("\(birthday.giftIdeas.count) gift ideas")
                                 .font(.custom("Bicyclette-Regular", size: 12))
