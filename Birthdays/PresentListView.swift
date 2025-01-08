@@ -3,8 +3,7 @@ import SwiftUI
 struct PresentListView: View {
     @Binding var birthdays: [Birthday] // To allow adding gifts
     @State private var isAddingGift = false // State to show the add gift sheet
-    @State private var selectedGift: Birthday.Gift? // State to track the selected gift for editing
-    @State private var selectedRecipient: Birthday? // State to track the recipient for the selected gift
+    @State private var selectedGiftAndRecipient: GiftRecipientPair? // Optional to track the selected gift and recipient
 
     var giftsWithRecipients: [(gift: Birthday.Gift, recipient: Birthday)] {
         birthdays.flatMap { birthday in
@@ -20,9 +19,7 @@ struct PresentListView: View {
                     .font(.custom("Bicyclette-Bold", size: 24))
                     .foregroundColor(.black)
                 Spacer()
-                Button(action: {
-                    clearGifts()
-                }) {
+                Button(action: clearGifts) {
                     Text("Clear All")
                         .font(.custom("Bicyclette-Bold", size: 16))
                         .foregroundColor(giftsWithRecipients.isEmpty ? .gray : .red)
@@ -79,8 +76,7 @@ struct PresentListView: View {
                         }
                         .background(Color.white.opacity(0.9))
                         .onTapGesture {
-                            selectedGift = item.gift
-                            selectedRecipient = item.recipient
+                            selectedGiftAndRecipient = GiftRecipientPair(gift: item.gift, recipient: item.recipient)
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                             Button(role: .destructive) {
@@ -131,17 +127,15 @@ struct PresentListView: View {
         .sheet(isPresented: $isAddingGift) {
             AddGiftView(birthdays: $birthdays)
         }
-        .sheet(item: $selectedGift) { gift in
-            if let recipient = selectedRecipient {
-                EditGiftView(
-                    birthdays: $birthdays,
-                    gift: gift,
-                    recipient: recipient,
-                    onSave: { updatedGift in
-                        updateGift(updatedGift, for: recipient)
-                    }
-                )
-            }
+        .sheet(item: $selectedGiftAndRecipient) { pair in
+            EditGiftView(
+                birthdays: $birthdays,
+                gift: pair.gift,
+                recipient: pair.recipient,
+                onSave: { updatedGift in
+                    updateGift(updatedGift, for: pair.recipient)
+                }
+            )
         }
     }
 
@@ -175,4 +169,11 @@ struct PresentListView: View {
             saveBirthdays(birthdays)
         }
     }
+}
+
+// MARK: - GiftRecipientPair
+struct GiftRecipientPair: Identifiable {
+    let gift: Birthday.Gift
+    let recipient: Birthday
+    var id: String { gift.id.uuidString } // Conform to Identifiable using the gift's ID
 }

@@ -8,8 +8,6 @@ struct AddGiftView: View {
     @State private var giftName: String = ""
     @State private var giftLink: String = ""
     @State private var showAlert = false
-    @State private var showShareSheet = false
-    @State private var shareText: String = "" // Text to be shared
     private let maxGiftNameLength = 50 // Character limit for gift name
 
     var body: some View {
@@ -19,7 +17,7 @@ struct AddGiftView: View {
                 Divider().background(Color.gray)
                 inputFields
                 Spacer()
-                actionButtons
+                saveButton
             }
             .background(Color.white)
             .alert(isPresented: $showAlert) {
@@ -121,15 +119,7 @@ struct AddGiftView: View {
         }
     }
 
-    // MARK: - Action Buttons
-    private var actionButtons: some View {
-        HStack {
-            saveButton
-            shareButton
-        }
-        .padding(.horizontal)
-    }
-
+    // MARK: - Save Button
     private var saveButton: some View {
         Button(action: {
             if giftName.isEmpty || selectedRecipient == nil {
@@ -152,39 +142,11 @@ struct AddGiftView: View {
             .padding()
             .background(Color.orange)
             .cornerRadius(12)
+            .padding(.horizontal)
         }
     }
 
-    private var shareButton: some View {
-        Button(action: {
-            generateShareText()
-            showShareSheet = true
-        }) {
-            HStack {
-                Spacer()
-                Image(systemName: "square.and.arrow.up")
-                    .font(.title2)
-                    .foregroundColor(.orange)
-                Text("Share")
-                    .font(.custom("Bicyclette-Bold", size: 18))
-                    .foregroundColor(.orange)
-                Spacer()
-            }
-            .padding()
-            .background(Color.white.opacity(0.9))
-            .cornerRadius(12)
-            .shadow(radius: 2)
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.orange, lineWidth: 1)
-            )
-        }
-        .sheet(isPresented: $showShareSheet) {
-            ActivityView(activityItems: [shareText])
-        }
-    }
-
-    // MARK: - Actions
+    // MARK: - Add Gift Logic
     private func addGift() {
         guard let recipientID = selectedRecipient else { return }
         if let index = birthdays.firstIndex(where: { $0.id == recipientID }) {
@@ -193,33 +155,4 @@ struct AddGiftView: View {
             saveBirthdays(birthdays) // Save updates
         }
     }
-
-    private func generateShareText() {
-        guard let recipientID = selectedRecipient,
-              let recipient = birthdays.first(where: { $0.id == recipientID }) else {
-            shareText = "I'm buying a gift but the details are missing."
-            return
-        }
-
-        let name = recipient.name
-        let age = recipient.ageAtNextBirthday
-        let birthdayDate = recipient.nextBirthdayFormatted
-
-        shareText = """
-        I'm buying a gift for \(name), they are turning \(age) on \(birthdayDate).
-        I'm thinking of getting \(giftName).\(giftLink.isEmpty ? "" : " Here's the link: \(giftLink)")
-        What do you think?
-        """
-    }
-}
-
-// MARK: - Activity View for Sharing
-struct ActivityView: UIViewControllerRepresentable {
-    let activityItems: [Any]
-
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
-    }
-
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
