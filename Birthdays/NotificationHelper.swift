@@ -2,147 +2,118 @@ import Foundation
 import UserNotifications
 
 struct NotificationHelper {
+    
     /// Requests notification permissions from the user
     static func requestPermissions() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
             if let error = error {
-                print("Error requesting notification permissions: \(error)")
+                print("❌ [DEBUG] Error requesting notification permissions: \(error)")
             } else if granted {
-                print("Notification permissions granted.")
+                print("✅ [DEBUG] Notification permissions granted.")
             } else {
-                print("Notification permissions denied.")
+                print("⚠️ [DEBUG] Notification permissions denied.")
             }
         }
         
-        // Optionally, log the current notification settings
-        UNUserNotificationCenter.current().getNotificationSettings { settings in
-            print("Notification Settings: \(settings)")
+        // Log the current notification settings
+        center.getNotificationSettings { settings in
+            print("📌 [DEBUG] Notification Settings: \(settings)")
         }
     }
     
-    /// Schedules notifications for upcoming birthdays (today + 1, tomorrow + 1, and 7 days + 1).
-    static func scheduleUpcomingNotifications(for birthdays: [Birthday]) {
+    static func scheduleNotifications(for birthdays: [Birthday]) {
+        print("🚀 [DEBUG] scheduleNotifications() called with \(birthdays.count) birthdays.")
+        
+        let center = UNUserNotificationCenter.current()
+        
+        // Remove all existing notifications
+        center.removeAllPendingNotificationRequests()
+        print("🗑 [DEBUG] Removed all pending notifications.")
+        
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
-        let tomorrow = calendar.date(byAdding: .day, value: 1, to: today)!
-        _ = calendar.date(byAdding: .day, value: 2, to: today)!
-        let eightDaysLater = calendar.date(byAdding: .day, value: 8, to: today)!
-
-        print("Checking for birthdays to schedule notifications...")
-
-        // Retrieve user-defined notification time
+        
+        // Retrieve the notification time directly as a Date.
         guard let notificationTime = UserDefaults.standard.object(forKey: "notificationTime") as? Date else {
-            print("Notification time not set. Using default time: 9:00 AM.")
+            print("❌ [DEBUG] No notification time set, skipping scheduling.")
             return
         }
-
-        // 1. Fetch all pending notifications
-        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
-            var validIdentifiers = Set<String>()
+        
+        var scheduledNotifications: [String] = []
+        
+        for birthday in birthdays {
+            // Get the nextBirthday and normalize it to the start of the day.
+            let nextBirthday = birthday.nextBirthday
+            let normalizedNextBirthday = calendar.startOfDay(for: nextBirthday)
+            let daysUntil = calendar.dateComponents([.day], from: today, to: normalizedNextBirthday).day ?? 0
             
-            // 2. Iterate over the birthday list and schedule valid notifications
-            var notificationsScheduled = 0
+            // Log out the details for debugging.
+            print("🕒 [DEBUG] \(birthday.name)'s nextBirthday: \(nextBirthday) (normalized: \(normalizedNextBirthday)), daysUntil: \(daysUntil)")
             
-            for birthday in birthdays {
-                let birthdayTodayIdentifier = "\(birthday.id.uuidString)-0"
-                let birthdayTomorrowIdentifier = "\(birthday.id.uuidString)-1"
-                let birthdaySevenDaysIdentifier = "\(birthday.id.uuidString)-7"
-                
-                // Check for birthdays today
-                if calendar.isDate(birthday.nextBirthday, inSameDayAs: today) {
-                    if let scheduledTime = combineDateAndTime(date: today, time: notificationTime),
-                       scheduledTime > Date() { // Ensure the notification time is in the future
-                        validIdentifiers.insert(birthdayTodayIdentifier)
-                        print("Notification validated/scheduled: Birthday Today! for \(birthday.name).")
-                        queueNotification(
-                            title: "🎉 Happy Birthday Today!",
-                            message: "\(birthday.name) turns \(birthday.ageAtNextBirthday) today!",
-                            for: birthday,
-                            identifier: birthdayTodayIdentifier,
-                            triggerDate: scheduledTime
-                        )
-                        notificationsScheduled += 1
-                    } else {
-                        print("Skipping today's notification for \(birthday.name) as the scheduled time has passed.")
-                    }
-                }
-                
-                // Check for birthdays tomorrow
-                if calendar.isDate(birthday.nextBirthday, inSameDayAs: tomorrow) {
-                    if let scheduledTime = combineDateAndTime(date: tomorrow, time: notificationTime) {
-                        validIdentifiers.insert(birthdayTomorrowIdentifier)
-                        print("Notification validated/scheduled: Birthday Tomorrow! for \(birthday.name).")
-                        queueNotification(
-                            title: "🎉 Birthday Tomorrow!",
-                            message: "\(birthday.name) turns \(birthday.ageAtNextBirthday) tomorrow!",
-                            for: birthday,
-                            identifier: birthdayTomorrowIdentifier,
-                            triggerDate: scheduledTime
-                        )
-                        notificationsScheduled += 1
-                    }
-                }
-                
-                // Check for birthdays in 7 days
-                if calendar.isDate(birthday.nextBirthday, inSameDayAs: eightDaysLater) {
-                    if let scheduledTime = combineDateAndTime(date: eightDaysLater, time: notificationTime) {
-                        validIdentifiers.insert(birthdaySevenDaysIdentifier)
-                        print("Notification validated/scheduled: Birthday in 7 Days! for \(birthday.name).")
-                        queueNotification(
-                            title: "🎉 Birthday in 7 Days!",
-                            message: "\(birthday.name) turns \(birthday.ageAtNextBirthday) in 7 days!",
-                            for: birthday,
-                            identifier: birthdaySevenDaysIdentifier,
-                            triggerDate: scheduledTime
-                        )
-                        notificationsScheduled += 1
-                    }
-                }
+            var title: String?
+            var message: String?
+            var identifier: String?
+            
+            if daysUntil == 0 {
+                title = "🎉 Happy Birthday Today!"
+                message = "\(birthday.name) turns \(birthday.ageAtNextBirthday) today!"
+                identifier = "\(birthday.id.uuidString)-today"
+            } else if daysUntil == 1 {
+                title = "🎉 Birthday Tomorrow!"
+                message = "\(birthday.name) turns \(birthday.ageAtNextBirthday) tomorrow!"
+                identifier = "\(birthday.id.uuidString)-tomorrow"
+            } else if daysUntil == 7 {
+                title = "🎉 Birthday in 7 Days!"
+                message = "\(birthday.name) turns \(birthday.ageAtNextBirthday) in 7 days!"
+                identifier = "\(birthday.id.uuidString)-week"
             }
             
-            // 3. Remove invalid notifications
-            let allIdentifiers = requests.map { $0.identifier }
-            let invalidIdentifiers = allIdentifiers.filter { !validIdentifiers.contains($0) }
-
-            if !invalidIdentifiers.isEmpty {
-                print("Removing \(invalidIdentifiers.count) invalid notifications: \(invalidIdentifiers)")
-                UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: invalidIdentifiers)
+            if let title = title, let message = message, let identifier = identifier {
+                // Calculate the notification date by adding the daysUntil to today's start.
+                let notificationDate = today
+                if let triggerDate = combineDateAndTime(date: notificationDate, time: notificationTime) {
+                    print("✅ [DEBUG] Scheduling notification: \(title) for \(birthday.name) at \(triggerDate)")
+                    scheduleNotification(title: title, message: message, identifier: identifier, triggerDate: triggerDate)
+                    scheduledNotifications.append(identifier)
+                }
             }
-
-            print("\(notificationsScheduled) notifications validated and scheduled.")
+        }
+        
+        // Debug: Log all scheduled notifications
+        center.getPendingNotificationRequests { requests in
+            print("🔍 [DEBUG] \(requests.count) pending notifications:")
+            for request in requests {
+                print("- \(request.identifier): \(request.content.title)")
+            }
+            
+            let requestIDs = requests.map { $0.identifier }
+            for id in scheduledNotifications {
+                if !requestIDs.contains(id) {
+                    print("❌ [DEBUG] Notification \(id) was scheduled but is missing from pending requests!")
+                }
+            }
         }
     }
-
-    /// Queues a notification to fire at a specific date and time.
-    static func queueNotification(
-        title: String,
-        message: String,
-        for birthday: Birthday,
-        identifier: String,
-        triggerDate: Date
-    ) {
+    
+    static func scheduleNotification(title: String, message: String, identifier: String, triggerDate: Date) {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = message
         content.sound = UNNotificationSound(named: UNNotificationSoundName("partyhornnotification.wav"))
-
-        // Set up a notification trigger for the specified date and time
+        
         let triggerComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: triggerDate)
         let trigger = UNCalendarNotificationTrigger(dateMatching: triggerComponents, repeats: false)
-
-        print("Queuing notification: \(title) for \(birthday.name) at \(triggerDate) with ID \(identifier).")
-
+        
         let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
-
         UNUserNotificationCenter.current().add(request) { error in
             if let error = error {
-                print("Failed to schedule notification: \(error)")
-            } else {
-                print("Notification queued successfully for \(birthday.name).")
+                print("❌ [DEBUG] Failed to schedule notification: \(error.localizedDescription)")
             }
         }
     }
-    /// Combines a specific date and time into a single `Date` object
+    
+    /// Combines a specific date and time into a single `Date` object.
     static func combineDateAndTime(date: Date, time: Date) -> Date? {
         let calendar = Calendar.current
         let dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
@@ -156,9 +127,16 @@ struct NotificationHelper {
         combinedComponents.minute = timeComponents.minute
         
         let combinedDate = calendar.date(from: combinedComponents)
-        print("Combined date and time: \(combinedDate?.description ?? "Invalid Date")")
+        print("🕒 Combined date and time: \(combinedDate?.description ?? "Invalid Date")")
         return combinedDate
     }
-
-
+    
+    /// Provides a default notification time (9:00 AM).
+    static func defaultNotificationTime() -> Date {
+        let calendar = Calendar.current
+        var components = DateComponents()
+        components.hour = 9
+        components.minute = 0
+        return calendar.date(from: components) ?? Date()
+    }
 }

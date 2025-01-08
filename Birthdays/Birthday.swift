@@ -6,6 +6,9 @@ struct Birthday: Identifiable, Codable {
     var name: String
     var birthDate: Date
     var giftIdeas: [Gift] // Stores gift ideas
+    var notificationsEnabled: Bool = true // Default to enabled
+    var interest: String? // New field for storing interest
+
     
     struct Gift: Identifiable, Codable {
         let id: UUID

@@ -84,7 +84,6 @@ struct ContentView: View {
                 }
             Spacer()
             presentListButton
-            notificationsButton
             settingsButton
         }
         .padding(.horizontal)

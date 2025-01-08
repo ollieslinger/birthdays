@@ -8,16 +8,18 @@ struct SettingsView: View {
     @State private var isShowingEditGroup = false // Controls EditGroupView
     @State private var showDocumentPicker = false
     @State private var isShowingTimePicker = false // Toggles picker visibility
+    // Use @AppStorage so the value is automatically stored/retrieved.
     @AppStorage("notificationTime") private var notificationTime: Date = defaultNotificationTime
     @State private var parsedBirthdays: [Birthday] = []
     @State private var showConfirmationPage = false
     @Environment(\.appDelegate) var appDelegate
 
     static var defaultNotificationTime: Date {
+        let calendar = Calendar.current
         var components = DateComponents()
-        components.hour = 9 // Default to 9:00 AM
+        components.hour = 9
         components.minute = 0
-        return Calendar.current.date(from: components) ?? Date()
+        return calendar.date(from: components) ?? Date()
     }
     
     var body: some View {
@@ -29,10 +31,10 @@ struct SettingsView: View {
                     .foregroundColor(.black)
                     .padding(.horizontal)
                     .padding(.top)
-
+                
                 Divider()
                     .background(Color.gray)
-
+                
                 // Notifications Section
                 VStack(alignment: .leading, spacing: 16) {
                     Text("Notifications")
@@ -42,7 +44,7 @@ struct SettingsView: View {
                     notificationTimeSection
                 }
                 .padding(.horizontal)
-
+                
                 // Import/Export Section
                 VStack(alignment: .leading, spacing: 16) {
                     Text("Import/Export")
@@ -53,7 +55,7 @@ struct SettingsView: View {
                     importButton
                 }
                 .padding(.horizontal)
-
+                
                 // Groups Section
                 VStack(alignment: .leading, spacing: 16) {
                     Text("Groups")
@@ -91,7 +93,7 @@ struct SettingsView: View {
             .navigationBarHidden(true)
         }
     }
-
+    
     // MARK: - Groups Section
     private var groupsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -120,7 +122,7 @@ struct SettingsView: View {
                         .stroke(Color.orange, lineWidth: 1)
                 )
             }
-
+            
             // Button to manage existing groups
             Button(action: { isShowingEditGroup = true }) {
                 HStack {
@@ -148,6 +150,7 @@ struct SettingsView: View {
             }
         }
     }
+    
     // MARK: - Notification Time Section
     private var notificationTimeSection: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -177,8 +180,7 @@ struct SettingsView: View {
                         .stroke(Color.orange, lineWidth: 1)
                 )
             }
-
-            // Ensure DatePicker is below the button without overlap
+            
             if isShowingTimePicker {
                 VStack(spacing: 16) {
                     DatePicker(
@@ -189,11 +191,11 @@ struct SettingsView: View {
                     .datePickerStyle(WheelDatePickerStyle())
                     .labelsHidden()
                     .padding(.horizontal)
-
+                    
                     Button("Confirm Time") {
                         confirmNotificationTime()
                         withAnimation {
-                            isShowingTimePicker = false // Collapse the section
+                            isShowingTimePicker = false
                         }
                     }
                     .padding()
@@ -203,13 +205,13 @@ struct SettingsView: View {
                     .cornerRadius(12)
                     .padding(.horizontal)
                 }
-                .padding(.top, 8) // Add spacing between the button and the picker
+                .padding(.top, 8)
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
-        .zIndex(1) // Ensure proper stacking to avoid layout conflicts
+        .zIndex(1)
     }
-
+    
     // MARK: - Export Button
     private var exportButton: some View {
         Button(action: exportToCSV) {
@@ -237,7 +239,7 @@ struct SettingsView: View {
             )
         }
     }
-
+    
     // MARK: - Import Button
     private var importButton: some View {
         Button(action: { showDocumentPicker = true }) {
@@ -266,16 +268,19 @@ struct SettingsView: View {
         }
     }
     
-    
     private func saveNotificationTime() {
+        print("📌 [DEBUG] notificationTime before saving: \(notificationTime)")
+        // Save the Date as-is; it represents just the time-of-day.
         UserDefaults.standard.set(notificationTime, forKey: "notificationTime")
+        print("✅ [DEBUG] Saved notification time: \(formattedTime(notificationTime))")
     }
 
     private func confirmNotificationTime() {
         saveNotificationTime() // Persist the updated notification time
         print("Notification time saved: \(formattedTime(notificationTime))")
-
-        appDelegate?.scheduleAppRefresh() // Use Environment appDelegate
+        
+        // Force a reschedule even if a pending task exists.
+        appDelegate?.scheduleAppRefresh()
         print("App refresh rescheduled with the new notification time.")
     }
     
@@ -293,17 +298,13 @@ struct SettingsView: View {
             .appendingPathComponent(fileName)
         
         do {
-            // Ensure the directory exists
             try FileManager.default.createDirectory(at: tempURL.deletingLastPathComponent(), withIntermediateDirectories: true)
-            // Write the CSV file
             try csvString.write(to: tempURL, atomically: true, encoding: .utf8)
             
             let activityVC = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
-            
-            // Dismiss any active sheets
             if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                let rootVC = scene.windows.first?.rootViewController {
-                rootVC.dismiss(animated: true) { // Ensure dismissal happens
+                rootVC.dismiss(animated: true) {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                         rootVC.present(activityVC, animated: true)
                     }
@@ -317,10 +318,9 @@ struct SettingsView: View {
     private func birthdaysToCSV() -> String {
         var csv = "Name,BirthDate,GiftIdeas\n"
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd/MM/yyyy" // Consistent date format
-
+        dateFormatter.dateFormat = "dd/MM/yyyy"
+        
         for birthday in birthdays {
-            // Map giftIdeas to their names and join them with a semicolon
             let giftIdeas = birthday.giftIdeas.map { $0.name }.joined(separator: ";")
             let date = dateFormatter.string(from: birthday.birthDate)
             csv += "\(birthday.name),\(date),\(giftIdeas)\n"

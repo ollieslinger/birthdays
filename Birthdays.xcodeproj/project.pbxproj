@@ -15,6 +15,9 @@
 		B352168B2D0690D9002B26C7 /* Bicyclette-Ultra.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B35216852D0690D9002B26C7 /* Bicyclette-Ultra.ttf */; };
 		B352168C2D0690D9002B26C7 /* Bicyclette-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B352167F2D0690D9002B26C7 /* Bicyclette-Black.ttf */; };
 		B361BB422D2B3C49005F3395 /* partyhornnotification.wav in Resources */ = {isa = PBXBuildFile; fileRef = B361BB412D2B3C49005F3395 /* partyhornnotification.wav */; };
+		B382A18C2D4D08D30046280A /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B382A18B2D4D08D30046280A /* WidgetKit.framework */; };
+		B382A18E2D4D08D30046280A /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B382A18D2D4D08D30046280A /* SwiftUI.framework */; };
+		B382A19F2D4D08D50046280A /* BirthdayWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B382A1892D4D08D30046280A /* BirthdayWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B3A9376A2D0889AB00BEA18D /* CSVImportTest.csv in Resources */ = {isa = PBXBuildFile; fileRef = B3A937692D0889AB00BEA18D /* CSVImportTest.csv */; };
 		B3A9376E2D08925000BEA18D /* CSVImportTest 2.csv in Resources */ = {isa = PBXBuildFile; fileRef = B3A9376D2D08925000BEA18D /* CSVImportTest 2.csv */; };
 		B3A9379D2D091E7400BEA18D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A9379C2D091E7400BEA18D /* AppDelegate.swift */; };
@@ -36,7 +39,28 @@
 			remoteGlobalIDString = B35216412D067A83002B26C7;
 			remoteInfo = Birthdays;
 		};
+		B382A19D2D4D08D50046280A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B352163A2D067A83002B26C7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B382A1882D4D08D30046280A;
+			remoteInfo = BirthdayWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B382A1A42D4D08D50046280A /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B382A19F2D4D08D50046280A /* BirthdayWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		B35216422D067A83002B26C7 /* bambina Birthdays.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "bambina Birthdays.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -50,6 +74,10 @@
 		B35216842D0690D9002B26C7 /* Bicyclette-Thin.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Bicyclette-Thin.ttf"; sourceTree = "<group>"; };
 		B35216852D0690D9002B26C7 /* Bicyclette-Ultra.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Bicyclette-Ultra.ttf"; sourceTree = "<group>"; };
 		B361BB412D2B3C49005F3395 /* partyhornnotification.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = partyhornnotification.wav; sourceTree = "<group>"; };
+		B382A1892D4D08D30046280A /* BirthdayWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BirthdayWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		B382A18B2D4D08D30046280A /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		B382A18D2D4D08D30046280A /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		B382A1A72D4D11E20046280A /* BirthdayWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BirthdayWidgetExtension.entitlements; sourceTree = "<group>"; };
 		B3A937692D0889AB00BEA18D /* CSVImportTest.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = CSVImportTest.csv; sourceTree = "<group>"; };
 		B3A9376D2D08925000BEA18D /* CSVImportTest 2.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = "CSVImportTest 2.csv"; sourceTree = "<group>"; };
 		B3A9379C2D091E7400BEA18D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -63,6 +91,20 @@
 			);
 			target = B35216412D067A83002B26C7 /* Birthdays */;
 		};
+		B382A1A32D4D08D50046280A /* Exceptions for "BirthdayWidget" folder in "BirthdayWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = B382A1882D4D08D30046280A /* BirthdayWidgetExtension */;
+		};
+		B382A1A62D4D0C0C0046280A /* Exceptions for "Birthdays" folder in "BirthdayWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Birthday.swift,
+			);
+			target = B382A1882D4D08D30046280A /* BirthdayWidgetExtension */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -70,6 +112,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				B352167A2D068F87002B26C7 /* Exceptions for "Birthdays" folder in "Birthdays" target */,
+				B382A1A62D4D0C0C0046280A /* Exceptions for "Birthdays" folder in "BirthdayWidgetExtension" target */,
 			);
 			path = Birthdays;
 			sourceTree = "<group>";
@@ -82,6 +125,14 @@
 		B352165F2D067A85002B26C7 /* BirthdaysUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = BirthdaysUITests;
+			sourceTree = "<group>";
+		};
+		B382A18F2D4D08D30046280A /* BirthdayWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B382A1A32D4D08D50046280A /* Exceptions for "BirthdayWidget" folder in "BirthdayWidgetExtension" target */,
+			);
+			path = BirthdayWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -109,12 +160,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B382A1862D4D08D30046280A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B382A18E2D4D08D30046280A /* SwiftUI.framework in Frameworks */,
+				B382A18C2D4D08D30046280A /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		B35216392D067A83002B26C7 = {
 			isa = PBXGroup;
 			children = (
+				B382A1A72D4D11E20046280A /* BirthdayWidgetExtension.entitlements */,
 				B3A9379C2D091E7400BEA18D /* AppDelegate.swift */,
 				B35216442D067A83002B26C7 /* Birthdays */,
 				B35216552D067A85002B26C7 /* BirthdaysTests */,
@@ -129,6 +190,8 @@
 				B3A937692D0889AB00BEA18D /* CSVImportTest.csv */,
 				B3A9376D2D08925000BEA18D /* CSVImportTest 2.csv */,
 				B361BB412D2B3C49005F3395 /* partyhornnotification.wav */,
+				B382A18F2D4D08D30046280A /* BirthdayWidget */,
+				B382A18A2D4D08D30046280A /* Frameworks */,
 				B35216432D067A83002B26C7 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -139,8 +202,18 @@
 				B35216422D067A83002B26C7 /* bambina Birthdays.app */,
 				B35216522D067A85002B26C7 /* BirthdaysTests.xctest */,
 				B352165C2D067A85002B26C7 /* BirthdaysUITests.xctest */,
+				B382A1892D4D08D30046280A /* BirthdayWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		B382A18A2D4D08D30046280A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B382A18B2D4D08D30046280A /* WidgetKit.framework */,
+				B382A18D2D4D08D30046280A /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -153,10 +226,12 @@
 				B352163E2D067A83002B26C7 /* Sources */,
 				B352163F2D067A83002B26C7 /* Frameworks */,
 				B35216402D067A83002B26C7 /* Resources */,
+				B382A1A42D4D08D50046280A /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				B382A19E2D4D08D50046280A /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				B35216442D067A83002B26C7 /* Birthdays */,
@@ -215,6 +290,28 @@
 			productReference = B352165C2D067A85002B26C7 /* BirthdaysUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		B382A1882D4D08D30046280A /* BirthdayWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B382A1A02D4D08D50046280A /* Build configuration list for PBXNativeTarget "BirthdayWidgetExtension" */;
+			buildPhases = (
+				B382A1852D4D08D30046280A /* Sources */,
+				B382A1862D4D08D30046280A /* Frameworks */,
+				B382A1872D4D08D30046280A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				B382A18F2D4D08D30046280A /* BirthdayWidget */,
+			);
+			name = BirthdayWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = BirthdayWidgetExtension;
+			productReference = B382A1892D4D08D30046280A /* BirthdayWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -222,7 +319,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1610;
+				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1610;
 				TargetAttributes = {
 					B35216412D067A83002B26C7 = {
@@ -235,6 +332,9 @@
 					B352165B2D067A85002B26C7 = {
 						CreatedOnToolsVersion = 16.1;
 						TestTargetID = B35216412D067A83002B26C7;
+					};
+					B382A1882D4D08D30046280A = {
+						CreatedOnToolsVersion = 16.2;
 					};
 				};
 			};
@@ -258,6 +358,7 @@
 				B35216412D067A83002B26C7 /* Birthdays */,
 				B35216512D067A85002B26C7 /* BirthdaysTests */,
 				B352165B2D067A85002B26C7 /* BirthdaysUITests */,
+				B382A1882D4D08D30046280A /* BirthdayWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -294,6 +395,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B382A1872D4D08D30046280A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -319,6 +427,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B382A1852D4D08D30046280A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -331,6 +446,11 @@
 			isa = PBXTargetDependency;
 			target = B35216412D067A83002B26C7 /* Birthdays */;
 			targetProxy = B352165D2D067A85002B26C7 /* PBXContainerItemProxy */;
+		};
+		B382A19E2D4D08D50046280A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B382A1882D4D08D30046280A /* BirthdayWidgetExtension */;
+			targetProxy = B382A19D2D4D08D50046280A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -475,7 +595,9 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = BirthdaysIcon;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -508,7 +630,9 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = BirthdaysIcon;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -590,6 +714,64 @@
 			};
 			name = Release;
 		};
+		B382A1A12D4D08D50046280A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = BirthdayWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8Y32FXG8ZU;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BirthdayWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BirthdayWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Bambina.Birthdays.BirthdayWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B382A1A22D4D08D50046280A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = BirthdayWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8Y32FXG8ZU;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BirthdayWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BirthdayWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Bambina.Birthdays.BirthdayWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -625,6 +807,15 @@
 			buildConfigurations = (
 				B352166D2D067A85002B26C7 /* Debug */,
 				B352166E2D067A85002B26C7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B382A1A02D4D08D50046280A /* Build configuration list for PBXNativeTarget "BirthdayWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B382A1A12D4D08D50046280A /* Debug */,
+				B382A1A22D4D08D50046280A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

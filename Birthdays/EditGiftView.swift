@@ -55,7 +55,8 @@ struct EditGiftView: View {
                 )
             }
             .onAppear {
-                initializeFields()
+                initializeFields() // Set up fields
+                generateShareText() // Generate shareText upon entering the view
             }
         }
     }
@@ -92,6 +93,7 @@ struct EditGiftView: View {
                     if newValue.count > maxGiftNameLength {
                         giftName = String(newValue.prefix(maxGiftNameLength))
                     }
+                    generateShareText() // Update shareText when giftName changes
                 }
                 .padding()
                 .background(Color.white.opacity(0.9))
@@ -118,6 +120,9 @@ struct EditGiftView: View {
             TextField("Enter gift link (e.g., https://example.com)", text: $giftLink)
                 .keyboardType(.URL)
                 .autocapitalization(.none)
+                .onChange(of: giftName) { oldValue, newValue in
+                    generateShareText() // Update shareText when giftLink changes
+                }
                 .padding()
                 .background(Color.white.opacity(0.9))
                 .cornerRadius(10)
@@ -152,7 +157,6 @@ struct EditGiftView: View {
     // MARK: - Share Button
     private var shareButton: some View {
         Button(action: {
-            generateShareText()
             showShareSheet = true
         }) {
             Text("Share")
@@ -180,11 +184,23 @@ struct EditGiftView: View {
     private func generateShareText() {
         let age = recipient.ageAtNextBirthday
         let birthdayDate = recipient.nextBirthdayFormatted
+        
+        // Debugging Logs
+        print("Generating share text...")
+        print("Recipient Name: \(recipient.name)")
+        print("Recipient Age: \(age)")
+        print("Next Birthday Date: \(birthdayDate)")
+        print("Gift Name: \(giftName)")
+        print("Gift Link: \(giftLink.isEmpty ? "No link provided" : giftLink)")
+        
         shareText = """
         I'm buying a gift for \(recipient.name), they are turning \(age) on \(birthdayDate).
         I'm thinking of getting \(giftName).\(giftLink.isEmpty ? "" : " Here's the link: \(giftLink)")
         What do you think?
         """
+        
+        // Final Share Text Debugging
+        print("Generated Share Text: \(shareText)")
     }
 
     // MARK: - Initialize Fields

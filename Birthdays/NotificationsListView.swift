@@ -54,51 +54,27 @@ struct NotificationsListView: View {
             } else {
                 List {
                     ForEach(sortedNotifications, id: \.identifier) { notification in
-                        HStack {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text(notification.content.title)
-                                    .font(.custom("Bicyclette-Bold", size: 18))
-                                Text(notification.content.body)
-                                    .font(.custom("Bicyclette-Regular", size: 14))
-                                    .foregroundColor(.gray)
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(notification.content.title)
+                                .font(.custom("Bicyclette-Bold", size: 18))
+                            Text(notification.content.body)
+                                .font(.custom("Bicyclette-Regular", size: 14))
+                                .foregroundColor(.gray)
 
-                                if let trigger = notification.trigger as? UNCalendarNotificationTrigger,
-                                   let nextDate = trigger.nextTriggerDate() {
-                                    Text("Scheduled: \(nextDate.formatted(date: .abbreviated, time: .shortened))")
-                                        .font(.custom("Bicyclette-Regular", size: 14))
-                                        .foregroundColor(.orange)
-                                }
-                            }
-                            Spacer()
-                            Button(action: {
-                                deleteNotification(identifier: notification.identifier)
-                            }) {
-                                Image(systemName: "trash")
-                                    .foregroundColor(.red)
+                            if let trigger = notification.trigger as? UNCalendarNotificationTrigger,
+                               let nextDate = trigger.nextTriggerDate() {
+                                Text("Scheduled: \(nextDate.formatted(date: .abbreviated, time: .shortened))")
+                                    .font(.custom("Bicyclette-Regular", size: 14))
+                                    .foregroundColor(.orange)
                             }
                         }
                     }
+                    .onDelete(perform: deleteNotification) // Enable swipe-to-delete
                 }
                 .listStyle(PlainListStyle())
             }
 
             Spacer() // Push content to the top
-//            // Test Notification Button
-//            Button(action: {
-//                scheduleTestNotification()
-//            }) {
-//                HStack {
-//                    Spacer()
-//                    Text("Test Notification")
-//                        .font(.custom("Bicyclette-Bold", size: 18))
-//                        .padding()
-//                        .background(Color.orange)
-//                        .foregroundColor(.white)
-//                        .cornerRadius(12)
-//                    Spacer()
-//                }
-//            }
-            .padding(.horizontal)
         }
         .onAppear(perform: loadNotifications)
         .background(Color.white)
@@ -131,10 +107,12 @@ struct NotificationsListView: View {
     }
 
     // MARK: - Delete Individual Notification
-    private func deleteNotification(identifier: String) {
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier])
+    private func deleteNotification(at offsets: IndexSet) {
+        let identifiersToDelete = offsets.map { sortedNotifications[$0].identifier }
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: identifiersToDelete)
         loadNotifications() // Refresh the list
     }
+    
     // MARK: - Schedule Test Notification
     private func scheduleTestNotification() {
         let content = UNMutableNotificationContent()

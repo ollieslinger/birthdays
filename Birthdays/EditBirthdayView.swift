@@ -12,7 +12,9 @@ struct EditBirthdayView: View {
     @State private var isShowingGiftEditor = false
     @State private var selectedGift: Birthday.Gift? // Selected gift for editing
     @State private var showUnsavedGiftAlert = false // Alert for unsaved gift idea
-
+    @State private var notificationsEnabled: Bool // Tracks the notification toggle state
+    @State private var selectedInterest: String // Tracks the selected interest
+    
     init(birthdays: Binding<[Birthday]>, birthdayToEdit: Birthday, editBirthday: Binding<Birthday?>) {
         _birthdays = birthdays
         self.birthdayToEdit = birthdayToEdit
@@ -20,31 +22,41 @@ struct EditBirthdayView: View {
         _name = State(initialValue: birthdayToEdit.name)
         _birthDate = State(initialValue: birthdayToEdit.birthDate)
         _giftIdeas = State(initialValue: birthdayToEdit.giftIdeas)
+        _notificationsEnabled = State(initialValue: birthdayToEdit.notificationsEnabled)
+        _selectedInterest = State(initialValue: birthdayToEdit.interest ?? "Creativity") // Default to "Creativity"
     }
-
+    
     var body: some View {
         NavigationView {
             VStack(alignment: .leading, spacing: 20) {
                 // Header
-                Text("🎉 Edit Birthday")
-                    .font(.custom("Bicyclette-Bold", size: 24))
-                    .foregroundColor(.black)
-                    .padding(.horizontal)
-                    .padding(.top)
-
+                HStack {
+                    Text("🎉 Edit Birthday")
+                        .font(.custom("Bicyclette-Bold", size: 24))
+                        .foregroundColor(.black)
+                    Spacer()
+                    Button(action: toggleNotifications) {
+                        Image(systemName: notificationsEnabled ? "bell.fill" : "bell.slash.fill")
+                            .foregroundColor(notificationsEnabled ? .orange : .gray)
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.top)
+                
                 Divider()
                     .background(Color.gray)
-
-                // Name and Date Section
+                
+                // Name, Date, and Interests Section
                 VStack(alignment: .leading, spacing: 16) {
                     nameField
                     birthDatePicker
+                    InterestPicker(selectedInterest: $selectedInterest) // Reusable InterestPicker
                 }
                 .padding(.horizontal)
-
+                
                 Divider()
                     .background(Color.gray)
-
+                
                 // Gift Ideas Section
                 VStack(alignment: .leading, spacing: 16) {
                     giftIdeasHeader
@@ -52,9 +64,9 @@ struct EditBirthdayView: View {
                     addGiftField
                 }
                 .padding(.horizontal)
-
+                
                 Spacer()
-
+                
                 // Save Button
                 Button(action: saveChanges) {
                     HStack {
@@ -95,7 +107,7 @@ struct EditBirthdayView: View {
             }
         }
     }
-
+    
     // MARK: - Subviews
     private var nameField: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -113,7 +125,7 @@ struct EditBirthdayView: View {
                 )
         }
     }
-
+    
     private var birthDatePicker: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Date of Birth")
@@ -131,7 +143,7 @@ struct EditBirthdayView: View {
                 )
         }
     }
-
+    
     private var giftIdeasHeader: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text("Gift Ideas (\(giftIdeas.count))")
@@ -142,7 +154,7 @@ struct EditBirthdayView: View {
                 .foregroundColor(.gray)
         }
     }
-
+    
     private var giftIdeasList: some View {
         List {
             ForEach(giftIdeas) { gift in
@@ -179,7 +191,7 @@ struct EditBirthdayView: View {
         .listStyle(PlainListStyle())
         .frame(maxHeight: 200)
     }
-
+    
     private var addGiftField: some View {
         HStack {
             TextField("Add gift idea", text: $newGiftIdea, onCommit: addGiftIdea)
@@ -198,8 +210,16 @@ struct EditBirthdayView: View {
             }
         }
     }
-
+    
     // MARK: - Actions
+    private func toggleNotifications() {
+        notificationsEnabled.toggle()
+        if let index = birthdays.firstIndex(where: { $0.id == birthdayToEdit.id }) {
+            birthdays[index].notificationsEnabled = notificationsEnabled
+        }
+        saveBirthdays(birthdays)
+    }
+    
     private func addGiftIdea() {
         guard !newGiftIdea.isEmpty else { return }
         let newGift = Birthday.Gift(id: UUID(), name: newGiftIdea, isPurchased: false)
@@ -207,33 +227,34 @@ struct EditBirthdayView: View {
         updateBirthday()
         newGiftIdea = ""
     }
-
+    
     private func deleteGift(_ gift: Birthday.Gift) {
         giftIdeas.removeAll { $0.id == gift.id }
         updateBirthday()
     }
-
+    
     private func markGiftAsPurchased(_ gift: Birthday.Gift) {
         if let index = giftIdeas.firstIndex(where: { $0.id == gift.id }) {
             giftIdeas[index].isPurchased.toggle()
         }
         updateBirthday()
     }
-
+    
     private func updateGift(_ updatedGift: Birthday.Gift) {
         if let index = giftIdeas.firstIndex(where: { $0.id == updatedGift.id }) {
             giftIdeas[index] = updatedGift
         }
         updateBirthday()
     }
-
+    
     private func updateBirthday() {
         if let index = birthdays.firstIndex(where: { $0.id == birthdayToEdit.id }) {
             birthdays[index].giftIdeas = giftIdeas
         }
         saveBirthdays(birthdays)
     }
-
+    
+    // MARK: - Save Changes
     private func saveChanges() {
         if !newGiftIdea.isEmpty {
             showUnsavedGiftAlert = true
@@ -243,6 +264,8 @@ struct EditBirthdayView: View {
             birthdays[index].name = name
             birthdays[index].birthDate = birthDate
             birthdays[index].giftIdeas = giftIdeas
+            birthdays[index].notificationsEnabled = notificationsEnabled
+            birthdays[index].interest = selectedInterest // Save selected interest
         }
         saveBirthdays(birthdays)
         editBirthday = nil
