@@ -50,9 +50,7 @@ func loadUpcomingBirthdays() -> [Birthday] {
         let upcomingBirthdays = decoded
             .filter { $0.nextBirthday >= today }
             .sorted { $0.nextBirthday < $1.nextBirthday }
-            .prefix(3)
-            .map { $0 }
-
+        
         if upcomingBirthdays.isEmpty {
             print("⚠️ [DEBUG] No upcoming birthdays found.")
         } else {
@@ -61,7 +59,7 @@ func loadUpcomingBirthdays() -> [Birthday] {
                 print("- \(birthday.name) (in \(birthday.daysUntilNextBirthday) days)")
             }
         }
-        return Array(upcomingBirthdays)
+        return upcomingBirthdays
     } catch {
         print("❌ [DEBUG] Failed to decode birthday data: \(error.localizedDescription)")
         return []
@@ -92,213 +90,146 @@ struct BirthdayWidgetContainer: View {
     }
 }
 
-// MARK: - Main Entry View that Selects Subview Based on Family
+// MARK: - Main Entry View that Selects Layout Based on Family
 struct BirthdayWidgetEntryView: View {
     var entry: BirthdayProvider.Entry
     var widgetFamily: WidgetFamily
     
+    /// Select the number of birthdays to show.
+    private var rowsToShow: [Birthday] {
+        switch widgetFamily {
+        case .systemSmall:
+            return Array(entry.upcomingBirthdays.prefix(1))
+        case .systemMedium:
+            return Array(entry.upcomingBirthdays.prefix(4))
+        case .systemLarge:
+            return Array(entry.upcomingBirthdays.prefix(10))
+        @unknown default:
+            return Array(entry.upcomingBirthdays.prefix(1))
+        }
+    }
+    
     var body: some View {
-        Group {
-            switch widgetFamily {
-            case .systemSmall:
-                BirthdayWidgetSmallView(entry: entry)
-            case .systemMedium:
-                BirthdayWidgetMediumView(entry: entry)
-            case .systemLarge:
-                BirthdayWidgetLargeView(entry: entry)
-            @unknown default:
-                BirthdayWidgetSmallView(entry: entry)
+        VStack(alignment: .leading, spacing: 8) {
+            headerView
+            if rowsToShow.isEmpty {
+                emptyStateView
+            } else {
+                if widgetFamily == .systemSmall {
+                    // One column for small widget
+                    ForEach(rowsToShow, id: \.id) { birthday in
+                        BirthdayRowView(birthday: birthday)
+                    }
+                } else {
+                    // Two columns for medium and large widgets.
+                    let columns = [
+                        GridItem(.flexible(), spacing: 8),
+                        GridItem(.flexible(), spacing: 8)
+                    ]
+                    LazyVGrid(columns: columns, spacing: 8) {
+                        ForEach(rowsToShow, id: \.id) { birthday in
+                            BirthdayRowView(birthday: birthday)
+                        }
+                    }
+                }
             }
+        }
+        .padding(widgetFamily == .systemSmall ? 4 : 8)
+        .containerBackground(for: .widget) { Color.white }
+    }
+    
+    private var headerView: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "gift.fill")
+                .foregroundColor(.orange)
+                .font(.system(size: 18))
+            Text("Birthdays")
+                .font(.custom("Bicyclette-Bold", size: 16))
+                .foregroundColor(.black)
+            Spacer()
+        }
+        .padding(.bottom, 4)
+    }
+    
+    private var emptyStateView: some View {
+        VStack(spacing: 4) {
+            Image(systemName: "calendar.badge.plus")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 50, height: 50)
+                .foregroundColor(.gray)
+            Text("No birthdays")
+                .font(.custom("Bicyclette-Bold", size: 14))
+                .foregroundColor(.gray)
+        }
+        .frame(maxHeight: .infinity, alignment: .center)
+    }
+}
+
+// MARK: - Reusable Birthday Row View
+struct BirthdayRowView: View {
+    var birthday: Birthday
+
+    var body: some View {
+        let isHighlight = birthday.daysUntilNextBirthday <= 7
+        return ZStack {
+            // Background card with shadow and border
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.white)
+                .shadow(color: cardShadowColor(for: birthday), radius: 5, x: 0, y: 2)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(cardBorderColor(for: birthday), lineWidth: 1)
+                )
+            // Content on top, aligned to the left.
+            HStack(spacing: 4) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(birthday.name)
+                        .font(.custom("Bicyclette-Bold", size: 14))
+                        .foregroundColor(.black)
+                        .lineLimit(1) // Allow up to two lines
+                        .minimumScaleFactor(0.5) // Shrink text down to 50% of its original size if needed.
+                    Text("\(birthday.daysUntilNextBirthday) days left")
+                        .font(.custom("Bicyclette-Regular", size: 12))
+                        .foregroundColor(.gray)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                Spacer()
+            }
+            .padding(8)
         }
     }
 }
-
-// MARK: - Small Widget View
-struct BirthdayWidgetSmallView: View {
-    var entry: BirthdayProvider.Entry
-
-    var body: some View {
-         VStack(alignment: .leading, spacing: 4) {
-             if entry.upcomingBirthdays.isEmpty {
-                 emptyStateView
-             } else {
-                 headerView
-                 birthdayRow(for: entry.upcomingBirthdays.first!)
-             }
-         }
-         .padding(8)
-         .containerBackground(for: .widget) { Color.white }
-    }
-    
-    private var headerView: some View {
-         HStack(spacing: 4) {
-              Image(systemName: "gift.fill")
-                 .foregroundColor(.orange)
-                 .font(.system(size: 18))
-              Text("Birthdays")
-                 .font(.custom("Bicyclette-Bold", size: 16))
-                 .foregroundColor(.black)
-              Spacer()
-         }
-         .padding(.bottom, 4)
-    }
-    
-    private func birthdayRow(for birthday: Birthday) -> some View {
-         HStack(spacing: 4) {
-              VStack(alignment: .leading, spacing: 2) {
-                  Text(birthday.name)
-                      .font(.custom("Bicyclette-Bold", size: 14))
-                      .foregroundColor(.black)
-                  Text("\(birthday.daysUntilNextBirthday) days left")
-                      .font(.custom("Bicyclette-Regular", size: 12))
-                      .foregroundColor(.gray)
-              }
-              Spacer()
-              Image(systemName: "calendar.circle.fill")
-                  .foregroundColor(.orange)
-                  .font(.system(size: 18))
-         }
-    }
-    
-    private var emptyStateView: some View {
-         VStack(spacing: 4) {
-             Image(systemName: "calendar.badge.plus")
-                 .resizable()
-                 .scaledToFit()
-                 .frame(width: 50, height: 50)
-                 .foregroundColor(.gray)
-             Text("No birthdays")
-                 .font(.custom("Bicyclette-Bold", size: 14))
-                 .foregroundColor(.gray)
-         }
-         .frame(maxHeight: .infinity, alignment: .center)
-    }
+// MARK: - Helper Functions for Border and Shadow
+func cardShadowColor(for birthday: Birthday) -> Color {
+    return birthday.daysUntilNextBirthday <= 7 ? Color.orange.opacity(0.5) : Color.gray.opacity(0.3)
 }
 
-// MARK: - Medium Widget View
-struct BirthdayWidgetMediumView: View {
-    var entry: BirthdayProvider.Entry
-
-    var body: some View {
-         VStack(alignment: .leading, spacing: 6) {
-             if entry.upcomingBirthdays.isEmpty {
-                 emptyStateView
-             } else {
-                 headerView
-                 ForEach(entry.upcomingBirthdays.prefix(2), id: \.id) { birthday in
-                     birthdayRow(for: birthday)
-                 }
-             }
-         }
-         .padding(12)
-         .containerBackground(for: .widget) { Color.white }
-    }
-    
-    private var headerView: some View {
-         HStack(spacing: 4) {
-              Image(systemName: "gift.fill")
-                 .foregroundColor(.orange)
-                 .font(.system(size: 20))
-              Text("Upcoming Birthdays")
-                 .font(.custom("Bicyclette-Bold", size: 18))
-                 .foregroundColor(.black)
-              Spacer()
-         }
-         .padding(.bottom, 6)
-    }
-    
-    private func birthdayRow(for birthday: Birthday) -> some View {
-         HStack(spacing: 6) {
-              VStack(alignment: .leading, spacing: 2) {
-                  Text(birthday.name)
-                      .font(.custom("Bicyclette-Bold", size: 16))
-                      .foregroundColor(.black)
-                  Text("\(birthday.daysUntilNextBirthday) days left")
-                      .font(.custom("Bicyclette-Regular", size: 14))
-                      .foregroundColor(.gray)
-              }
-              Spacer()
-              Image(systemName: "calendar.circle.fill")
-                  .foregroundColor(.orange)
-                  .font(.system(size: 20))
-         }
-    }
-    
-    private var emptyStateView: some View {
-         VStack(spacing: 6) {
-             Image(systemName: "calendar.badge.plus")
-                 .resizable()
-                 .scaledToFit()
-                 .frame(width: 60, height: 60)
-                 .foregroundColor(.gray)
-             Text("No birthdays yet!")
-                 .font(.custom("Bicyclette-Bold", size: 16))
-                 .foregroundColor(.gray)
-         }
-         .frame(maxHeight: .infinity, alignment: .center)
-    }
+func cardBorderColor(for birthday: Birthday) -> Color {
+    return birthday.daysUntilNextBirthday <= 7 ? Color.orange : Color.gray
 }
 
-// MARK: - Large Widget View
-struct BirthdayWidgetLargeView: View {
-    var entry: BirthdayProvider.Entry
-
-    var body: some View {
-         VStack(alignment: .leading, spacing: 8) {
-             if entry.upcomingBirthdays.isEmpty {
-                 emptyStateView
-             } else {
-                 headerView
-                 ForEach(entry.upcomingBirthdays.prefix(3), id: \.id) { birthday in
-                     birthdayRow(for: birthday)
-                 }
-             }
-         }
-         .padding(16)
-         .containerBackground(for: .widget) { Color.white }
+// MARK: - Widget Previews
+struct BirthdayWidget_Previews: PreviewProvider {
+    static var sampleBirthday: Birthday {
+        // Create a sample birthday. Adjust the birthDate so that nextBirthday falls in the future.
+        let calendar = Calendar.current
+        let birthDate = calendar.date(byAdding: .year, value: -30, to: Date()) ?? Date()
+        return Birthday(id: UUID(), name: "Pete", birthDate: birthDate)
     }
     
-    private var headerView: some View {
-         HStack(spacing: 4) {
-              Image(systemName: "gift.fill")
-                 .foregroundColor(.orange)
-                 .font(.system(size: 22))
-              Text("Upcoming Birthdays")
-                 .font(.custom("Bicyclette-Bold", size: 20))
-                 .foregroundColor(.black)
-              Spacer()
-         }
-         .padding(.bottom, 8)
+    static var sampleEntry: BirthdayEntry {
+        BirthdayEntry(date: Date(), upcomingBirthdays: [sampleBirthday, sampleBirthday, sampleBirthday, sampleBirthday, sampleBirthday])
     }
     
-    private func birthdayRow(for birthday: Birthday) -> some View {
-         HStack(spacing: 8) {
-              VStack(alignment: .leading, spacing: 4) {
-                  Text(birthday.name)
-                      .font(.custom("Bicyclette-Bold", size: 18))
-                      .foregroundColor(.black)
-                  Text("\(birthday.daysUntilNextBirthday) days left")
-                      .font(.custom("Bicyclette-Regular", size: 16))
-                      .foregroundColor(.gray)
-              }
-              Spacer()
-              Image(systemName: "calendar.circle.fill")
-                  .foregroundColor(.orange)
-                  .font(.system(size: 22))
-         }
-    }
-    
-    private var emptyStateView: some View {
-         VStack(spacing: 8) {
-             Image(systemName: "calendar.badge.plus")
-                 .resizable()
-                 .scaledToFit()
-                 .frame(width: 70, height: 70)
-                 .foregroundColor(.gray)
-             Text("No birthdays yet!")
-                 .font(.custom("Bicyclette-Bold", size: 18))
-                 .foregroundColor(.gray)
-         }
-         .frame(maxHeight: .infinity, alignment: .center)
+    static var previews: some View {
+        Group {
+            BirthdayWidgetEntryView(entry: sampleEntry, widgetFamily: .systemSmall)
+                .previewContext(WidgetPreviewContext(family: .systemSmall))
+            BirthdayWidgetEntryView(entry: sampleEntry, widgetFamily: .systemMedium)
+                .previewContext(WidgetPreviewContext(family: .systemMedium))
+            BirthdayWidgetEntryView(entry: sampleEntry, widgetFamily: .systemLarge)
+                .previewContext(WidgetPreviewContext(family: .systemLarge))
+        }
     }
 }

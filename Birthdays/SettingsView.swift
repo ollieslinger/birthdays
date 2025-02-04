@@ -24,50 +24,59 @@ struct SettingsView: View {
     
     var body: some View {
         NavigationView {
-            VStack(alignment: .leading, spacing: 20) {
-                // Header
-                Text("⚙️ Settings")
-                    .font(.custom("Bicyclette-Bold", size: 24))
-                    .foregroundColor(.black)
-                    .padding(.horizontal)
-                    .padding(.top)
-                
-                Divider()
-                    .background(Color.gray)
-                
-                // Notifications Section
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Notifications")
-                        .font(.custom("Bicyclette-Bold", size: 20))
-                        .foregroundColor(.black)
-                        .padding(.bottom, 8)
-                    notificationTimeSection
+            GeometryReader { geometry in
+                // Use a ScrollView to handle overflow and allow for safe area adjustments.
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 20) {
+                        // Header
+                        Text("⚙️ Settings")
+                            .font(.custom("Bicyclette-Bold", size: 24))
+                            .foregroundColor(.black)
+                            .padding(.horizontal)
+                            // Add extra top padding based on the safe area inset.
+                            .padding(.top, geometry.safeAreaInsets.top + 10)
+                        
+                        Divider()
+                            .background(Color.gray)
+                        
+                        // Notifications Section
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Notifications")
+                                .font(.custom("Bicyclette-Bold", size: 20))
+                                .foregroundColor(.black)
+                                .padding(.bottom, 8)
+                            notificationTimeSection
+                        }
+                        .padding(.horizontal)
+                        
+                        // Import/Export Section
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Import/Export")
+                                .font(.custom("Bicyclette-Bold", size: 20))
+                                .foregroundColor(.black)
+                                .padding(.bottom, 8)
+                            exportButton
+                            importButton
+                        }
+                        .padding(.horizontal)
+                        
+                        // Groups Section
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Groups")
+                                .font(.custom("Bicyclette-Bold", size: 20))
+                                .foregroundColor(.black)
+                                .padding(.bottom, 8)
+                            groupsSection
+                        }
+                        .padding(.horizontal)
+                        
+                        Spacer(minLength: 20)
+                    }
                 }
-                .padding(.horizontal)
-                
-                // Import/Export Section
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Import/Export")
-                        .font(.custom("Bicyclette-Bold", size: 20))
-                        .foregroundColor(.black)
-                        .padding(.bottom, 8)
-                    exportButton
-                    importButton
-                }
-                .padding(.horizontal)
-                
-                // Groups Section
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Groups")
-                        .font(.custom("Bicyclette-Bold", size: 20))
-                        .foregroundColor(.black)
-                        .padding(.bottom, 8)
-                    groupsSection
-                }
-                .padding(.horizontal)
-                
-                Spacer()
+                // Ensure that the ScrollView ignores the top safe area so we can add our own padding.
+                .edgesIgnoringSafeArea(.top)
             }
+            // Sheet modifiers remain unchanged.
             .sheet(isPresented: $showDocumentPicker) {
                 DocumentPicker(birthdays: $birthdays, parsedBirthdays: $parsedBirthdays, showConfirmationPage: $showConfirmationPage)
             }
@@ -84,10 +93,10 @@ struct SettingsView: View {
                 )
             }
             .sheet(isPresented: $isShowingGroupEditor) {
-                AddGroupView(groups: $groups) // Updated to AddGroupView
+                AddGroupView(groups: $groups)
             }
             .sheet(isPresented: $isShowingEditGroup) {
-                ManageGroupView(groups: $groups, birthdays: $birthdays) // Updated group editor
+                ManageGroupView(groups: $groups, birthdays: $birthdays)
             }
             .background(Color.white)
             .navigationBarHidden(true)
@@ -270,16 +279,13 @@ struct SettingsView: View {
     
     private func saveNotificationTime() {
         print("📌 [DEBUG] notificationTime before saving: \(notificationTime)")
-        // Save the Date as-is; it represents just the time-of-day.
         UserDefaults.standard.set(notificationTime, forKey: "notificationTime")
         print("✅ [DEBUG] Saved notification time: \(formattedTime(notificationTime))")
     }
 
     private func confirmNotificationTime() {
-        saveNotificationTime() // Persist the updated notification time
+        saveNotificationTime()
         print("Notification time saved: \(formattedTime(notificationTime))")
-        
-        // Force a reschedule even if a pending task exists.
         appDelegate?.scheduleAppRefresh()
         print("App refresh rescheduled with the new notification time.")
     }
